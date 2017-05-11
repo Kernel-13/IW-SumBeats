@@ -1,0 +1,149 @@
+/* ejemplo de css */
+
+body {
+  background-color: #303030;
+  color: white;
+  padding-top: 50px;
+}
+.starter-template {
+  padding: 40px 15px;
+  text-align: center;
+}
+
+/*
+body {
+	background-color: #D0D0D0;
+	color: black;
+}*/
+
+#ilust {
+	max-width: 100%; 
+	display: block; 
+	margin: auto;
+	background-color: black;
+}
+
+.illust-box {
+	padding-top: 5px;
+	padding-bottom: 15px;
+}
+
+.desc-box-illust {
+	padding: 10px 4px 15px 4px;
+}
+
+.comment-box-illust {
+	padding: 20px 4px 10px 4px;
+}
+
+.illust-container{
+
+}
+
+.ckeditor-box {
+	padding: 15px 0 15px 0; 
+}
+
+.busqueda{
+	padding-top: 20px;
+	position: fixed;
+	float: left;
+	height: 100%;
+	background:#4f4f4f;
+}
+
+.search-result{
+	padding-top: 10px;
+	float: right;
+}
+
+.search-text{
+	padding: 10px 20px 10px 20px;
+}
+
+.user-profile{
+	padding: 50px 200px 0 200px;
+}
+
+.project-list  {
+	display: flex;
+	margin: 0 100px 0 100px;
+}
+
+.project-view {
+	text-align: center;
+	margin: 25px 50px 25px 50px;
+}
+
+.search-1 {
+	display: flex;
+	margin: 20px 0 20px 0;
+}
+
+.project-info {
+	margin-top: 30px;
+	margin-bottom: 30px;
+	display: flex;
+}
+
+.collaborators {
+	display: flex;
+	margin: 25px 25px 25px 25px;
+	text-align: center;
+}
+
+.project-collaborators {
+	margin: 0 25px 0 25px;
+	/*text-align: center;*/
+}
+
+.studio-info {
+	display: flex;
+	padding-top: 40px;
+	padding-bottom: 40px;
+	padding-left: 40px;
+}
+
+.studio-txt {
+	padding-top: 50px;
+	padding-bottom: 50px;
+	text-align: center;
+	margin-right: 65%;
+	float:left;
+}
+
+.studio-blank {
+	background: #fff;
+}
+
+.studio-pic {
+	float: right;
+}
+
+.trendy{
+	display: flex;
+	margin: 20px 200px 20px 200px;
+	background: #3f3f3f;
+}
+
+.project-ratings{
+	margin-top: 20px;
+}
+
+.main-page {
+	padding-left: 0;
+	padding-right: 0;
+	position: absolute;
+	/*max-width: 100%;*/
+}
+
+.main-img {
+	width: 100%;
+	max-height: 100%
+}
+
+.frontpage {
+	background-image: url("../img/banner-txt.png");
+	background-repeat: no-repeat;
+	background-size: cover;
+}

@@ -1,0 +1,82 @@
+.login {
+	padding-top: 10vh;
+}
+
+.register {
+	padding-top: 10vh;
+}
+
+.register-second {
+
+}
+
+.reminder {
+	color: gray;
+}
+
+.icon_hidden {
+	display: none;
+}
+
+.icon_shown_err {
+	color: red;	
+}
+
+.icon_shown_ok {
+	color: green;	
+}
+
+.signal {
+	width: 30px;
+}
+
+.message-box {
+	padding-right: 0;
+	padding-left: 0;
+	vertical-align: middle;
+}
+
+.all-ok {
+	box-shadow: 0 0 10px green;
+}
+
+.something-wrong {
+	box-shadow: 0 0 10px red;
+}
+
+
+.form-group {
+	color: black;
+	font-weight: bold;
+}
+
+.form-class {
+	margin-left: auto;
+	margin-right: auto;
+	width: 390px;
+	text-align: center;
+	font-family: 'Open Sans', sans-serif;
+	/*font-family: 'Muli', sans-serif;*/
+}
+
+.register-second > .form-class {
+	width: 450px;
+}
+
+.submitButton {
+	margin-top: 0px;
+}
+
+.kind-selection {
+	display: flex;
+	font-size: 16px;
+}
+
+.kind-selection div {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#descBox {
+	height: 300px;
+}
