@@ -27,29 +27,40 @@ public class RootController {
 	String root(HttpSession s) {
 		return "home";
 	}
+	
 	@GetMapping({"/user","/profile"})
 	String usuario(){
 		return "user";
 	}
+	
 	/*@GetMapping("/admin")
 	String admin(){
 		return "admin";
 	}*/
+	
 	@GetMapping("/search")
 	String search(){
 		return "search";
 	}
+	
 	@GetMapping("/project")
 	String project(){
 		return "project";
 	}
+	
 	@GetMapping("/trendy")
 	String trendy(){
 		return "trendy";
 	}
+	
 	@GetMapping("/studio")
 	String studio(){
 		return "studio";
+	}
+	
+	@GetMapping("/editor")
+	String editor(){
+		return "editor";
 	}
 	
 	// Ejemplo : Reconocimiento de Usuario
