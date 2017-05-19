@@ -14,7 +14,7 @@
 			<div class="col-sm-12 user-profile">
 				<div style="text-align: center; margin-bottom: 50px;">
 					<img alt="user_profile_pic" src="static/img/logUsu.png">
-					<h3>KilloveFP</h3>
+					<h3> KilloveFP </h3>
 					<p>"But I must explain to you how all this mistaken idea of denouncing 
 						pleasure and praising pain was born and I will give you a complete 
 						account of the system, and expound the actual teachings of the great 
