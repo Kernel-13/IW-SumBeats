@@ -153,3 +153,13 @@ body {
 	background-repeat: no-repeat;
 	background-size: cover;
 }
+
+.something-bad {
+    padding: 20px;
+    color: white;
+    margin-left: 0;
+    margin-right: 0;
+    background-color: #171616;
+    text-align: center;
+    font-size: 24px;
+}
