@@ -42,22 +42,4 @@ public class IwUserDetailsService implements UserDetailsService {
     	}
     }
     
-   /* public UserDetails ok(String p_name){
-    	try {
-	        User u = entityManager.createQuery("from Proyecto where name = :name", Proyecto.class)
-	                            .setParameter("name", p_name)
-	                            .getSingleResult();
-	        // build UserDetails object
-	        ArrayList<SimpleGrantedAuthority> roles = new ArrayList<>();
-	        for (String r : u.getRoles().split("[,]")) {
-	        	roles.add(new SimpleGrantedAuthority("ROLE_" + r));
-		        log.info("Roles for " + p_name + " include " + roles.get(roles.size()-1));
-	        }
-	        return new org.springframework.security.core.userdetails.User(
-	        		u.getName(), u.getPassword(), roles); 
-	    } catch (Exception e) {
-    		log.info("No such user: " + p_name);
-    		return null;
-    	}
-    }*/
 }
