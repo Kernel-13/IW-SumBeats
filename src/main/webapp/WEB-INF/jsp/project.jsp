@@ -14,11 +14,8 @@
 			<div class="col-sm-10 project-info">
 				<img alt="p-img" src="static/img/logPro.png">
 					<div class="search-text">
-						<h3>Project Name</h3>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut 
-						labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-						 nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit 
-						 esse cillum dolore eu fugiat nulla pariatur.</p>
+						<h3>${project.name}</h3>
+						<p>${project.desc}</p>
 					</div>
 			</div>
 			<div class="col-sm-2 project-ratings">
@@ -29,30 +26,16 @@
 		<div class="row">
 		<div style="margin-left: 25px;"><h4>Participantes:</h4></div>
 			<div class="col-sm-12 collaborators">
+			<c:forEach items="${project.collaborators}" var="c">
 				<div class="project-collaborators">
 					<a href="user"><img alt="pr1" src="static/img/logUsu.png"></a>
 					<div class="caption">
 						<p>
-							Collaborator #1
+							${c.name}
 						</p>
 					</div>
 				</div>
-				<div class="project-collaborators">
-					<a href="user"><img alt="pr1" src="static/img/logUsu.png"></a>
-					<div class="caption">
-						<p>
-							Collaborator #2
-						</p>
-					</div>
-				</div>
-				<div class="project-collaborators">
-					<a href="user"><img alt="pr1" src="static/img/logUsu.png"></a>
-					<div class="caption">
-						<p>
-							Collaborator #3
-						</p>
-					</div>
-				</div>
+			</c:forEach>
 			</div>
 		</div>
 		<div class="row">

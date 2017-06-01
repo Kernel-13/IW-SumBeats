@@ -1,19 +1,21 @@
 package es.ucm.fdi.iw.controller;
 
+import java.util.ArrayList;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import es.ucm.fdi.iw.model.Proyecto;
+import es.ucm.fdi.iw.model.User;
 
 @Controller	
 public class RootController {
@@ -24,12 +26,12 @@ public class RootController {
 	private EntityManager entityManager;
 	
 	@GetMapping({"/", "/index"})
-	String root(HttpSession s) {
+	public String root(HttpSession s) {
 		return "home";
 	}
 	
 	@GetMapping({"/user","/profile"})
-	String usuario(){
+	public String usuario(){
 		return "user";
 	}
 	
@@ -39,46 +41,53 @@ public class RootController {
 	}*/
 	
 	@GetMapping("/search")
-	String search(){
+	public String search(){
 		return "search";
 	}
 	
 	@GetMapping("/project")
-	String project(){
+	@Transactional
+	public String project(Model m){
+		Proyecto p = new Proyecto();
+		p.setName("Mi Proyecto");
+		p.setDesc("Mi descripcion");
+		p.setCollaborators(new ArrayList<>());
+		p.getCollaborators().add((User)entityManager.find(User.class, 1L));
+		entityManager.persist(p);
+		m.addAttribute("project", p);
 		return "project";
 	}
 	
 	@GetMapping("/trendy")
-	String trendy(){
+	public String trendy(){
 		return "trendy";
 	}
 	
 	@GetMapping("/studio")
-	String studio(){
+	public String studio(){
 		return "studio";
 	}
 	
 	@GetMapping("/editor")
-	String editor(){
+	public String editor(){
 		return "editor";
 	}
 	
 	// Ejemplo : Reconocimiento de Usuario
 	
 	@GetMapping("/login/{role}")
-	String login(@PathVariable String role, HttpSession s){
+	public String login(@PathVariable String role, HttpSession s){
 		s.setAttribute("role", role);
 		return "login";
 	}
 	
 	@GetMapping("/login")
-	String login(){
+	public String login(){
 		return "login";
 	}
 	
 	@GetMapping("/logout")
-	String login(HttpSession s){
-		s.invalidate();
-		return "login";
+	public String logout(){
+		return "logout";
 	}
 }

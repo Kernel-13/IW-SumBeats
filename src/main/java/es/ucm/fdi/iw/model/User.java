@@ -11,7 +11,7 @@ public class User {
 	private long id;
 	private String name;
 	private String password; // TEMPORAL
-	private String desc;
+	private String description;
 	private String email;
 	private List<Proyecto> projects;
 	private List<Proyecto> collaborations;
@@ -68,12 +68,12 @@ public class User {
 		this.password = password;
 	}
 
-	public String getDesc() {
-		return desc;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setDesc(String desc) {
-		this.desc = desc;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public String getEmail() {
