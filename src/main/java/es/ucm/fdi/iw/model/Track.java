@@ -5,14 +5,20 @@ import javax.persistence.*;
 @Entity
 public class Track {
 	private long id;
+	private String name;
 	private User creator;
-	private String instrumento;
-	private String status; // PREGUNTAR 
-	// private String path;
-	// private MIDItrack midi;
-	// More MIDI stuff
+	private String abc;
+	private String status;
 	
 	public Track(){}
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 	
 	@Id
 	@GeneratedValue
@@ -25,12 +31,12 @@ public class Track {
 		return creator;
 	}
 
-	public String getInstrumento() {
-		return instrumento;
+	public String getAbc() {
+		return abc;
 	}
 
-	public void setInstrumento(String instrumento) {
-		this.instrumento = instrumento;
+	public void setAbc(String abc) {
+		this.abc = abc;
 	}
 
 	public String getStatus() {

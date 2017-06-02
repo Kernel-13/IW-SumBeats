@@ -7,3 +7,4 @@ INSERT INTO proyecto (name ,desc ,global_rating, week_rating) VALUES ('other', '
 INSERT INTO proyecto (name ,desc ,global_rating, week_rating) VALUES ('another', 'someone',10,10);
 INSERT INTO proyecto (name ,desc ,global_rating, week_rating) VALUES ('test', 'someone',35, 1);
 INSERT INTO proyecto (name ,desc ,global_rating, week_rating) VALUES ('second test', 'someone',1,100);
+INSERT INTO track (id, name) VALUES (1, 'TRACK 1');

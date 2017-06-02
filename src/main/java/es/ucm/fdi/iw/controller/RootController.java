@@ -15,9 +15,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import es.ucm.fdi.iw.ProyectoQueries;
 import es.ucm.fdi.iw.model.Proyecto;
+import es.ucm.fdi.iw.model.ProyectoQueries;
+import es.ucm.fdi.iw.model.Track;
+import es.ucm.fdi.iw.model.TrackQueries;
 import es.ucm.fdi.iw.model.User;
+import es.ucm.fdi.iw.model.UserQueries;
 
 @Controller
 public class RootController {
@@ -36,6 +39,14 @@ public class RootController {
 	public String usuario() {
 		return "user";
 	}
+	
+	@GetMapping({ "/user/{name}", "/profile/{name}" })
+	public String showusuario(@PathVariable String name, Model m) {
+		UserQueries us = new UserQueries(entityManager);
+		User u = us.findWithName(name);
+		m.addAttribute("user", u);
+		return "user";
+	}
 
 	/*
 	 * @GetMapping("/admin") String admin(){ return "admin"; }
@@ -49,16 +60,20 @@ public class RootController {
 		return "search";
 	}
 
-	@GetMapping("/project")
+	@GetMapping("/project/{proyecto}")
 	@Transactional
-	public String project(Model m) {
-		Proyecto p = new Proyecto();
-		p.setName("Mi Proyecto");
-		p.setDesc("Mi descripcion");
-		p.setCollaborators(new ArrayList<>());
-		p.getCollaborators().add((User) entityManager.find(User.class, 1L));
-		entityManager.persist(p);
-		m.addAttribute("project", p);
+	public String project(@PathVariable String proyecto, Model m) {	
+		ProyectoQueries pq = new ProyectoQueries(entityManager);
+		Proyecto pro = pq.findWithName(proyecto);
+		
+		TrackQueries tr = new TrackQueries(entityManager);
+		Track track = tr.findWithId(1);
+		
+		pro.setCurrentTracks(new ArrayList<>());
+		for(int i = 0; i < 5; i++){
+			pro.getCurrentTracks().add(track);
+		}
+		m.addAttribute("project", pro);
 		return "project";
 	}
 
@@ -76,9 +91,18 @@ public class RootController {
 		return "studio";
 	}
 
-	@GetMapping("/editor")
-	public String editor() {
+	@GetMapping("/editor/{t}")
+	public String editor(@PathVariable long t, Model m) {
+		TrackQueries pq = new TrackQueries(entityManager);
+		Track track = pq.findWithId(t);
+		m.addAttribute("track", track);
+		m.addAttribute("us", "bb");
 		return "editor";
+	}
+	
+	@GetMapping("/addSong")
+	public String addSong() {
+		return "addSong";
 	}
 
 	// Ejemplo : Reconocimiento de Usuario

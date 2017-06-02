@@ -28,7 +28,7 @@
 		<div class="col-sm-9 search-result">
 			<c:forEach items="${lista}" var="c">
 				<div class="search-1">
-					<a href="project"><img alt="res1" src="static/img/logPro.png"></a>
+					<a href="project/${c.name}"><img alt="res1" src="static/img/logPro.png"></a>
 					<div class="search-text">
 						<h3>${c.name}</h3>
 						<p>${c.desc}</p>

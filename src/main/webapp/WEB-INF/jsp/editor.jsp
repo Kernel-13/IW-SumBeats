@@ -6,23 +6,25 @@
 <html>
 <head>
 <%@ include file="../jspf/head.jspf"%>
-<script src="static/js/abcjs_editor_midi_3.1.2-min.js"
+<script src="../static/js/abcjs_editor_midi_3.1.2-min.js"
 	type="text/javascript"></script>
-<link rel="stylesheet" type="text/css" href="static/css/abcjs-midi.css">
+<link rel="stylesheet" type="text/css"
+	href="../static/css/abcjs-midi.css">
 <link rel="stylesheet"
 	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="../static/css/main.css">
 <title>Editor Test</title>
 </head>
 <body>
 	<%@ include file="../jspf/navbar.jspf"%>
 	<div class="container-fluid illust-container">
-		
+
 		<hr>
 		<div class="row" style="margin-top: 20px; margin-bottom: 20px;">
 			<div class="col-sm-5">
-				<h3 style="text-align: center;">Edit your track using this
-					Text-Box</h3>
+				<h3 style="text-align: center;">Edit ${track.name}</h3>
 				<br>
+				<!--  
 				<textarea class="text-editor form-control" id="abc3" cols="80"
 					rows="15">X: 1
 T: Night Bird
@@ -243,6 +245,10 @@ F,3/8 C3/8 F,3/8 C3/8 F,3/8 C3/8 ^C,3/8 ^G,/4 ^C,3/8 ^G,3/8 ^C,3/8
 ^G,3/8 ^D,3/8 ^A,3/8 ^D,/4 ^A,3/8 F,3/8 C3/8 F,3/8 C3/8 F,3/8 C3/8
 F,3/8 C3/8 
 </textarea>
+		-->
+
+				<textarea class="text-editor form-control" id="abc3" cols="80"
+					rows="15">${track.abc}</textarea>
 				<hr>
 				<div id="midi-download3"
 					style="text-align: center; font-size: 24px;"></div>
@@ -260,10 +266,20 @@ F,3/8 C3/8
 				<div style="background: white; padding: 0; maring: 0;">
 					<div id="paper3"></div>
 				</div>
+
+				<c:if test="${track.creator.name== us}">
+					<div id="cambio" style="padding: 20px; text-align: center;">
+						<a href="#" class="btn btn-danger" style="font-size: 18px;">
+							Aplicar Cambios</a>
+					</div>
+				</c:if>
+
+<!--  
 				<div id="cambio" style="padding: 20px; text-align: center;">
 					<a href="#" class="btn btn-danger" style="font-size: 18px;">
 						Aplicar Cambios</a>
 				</div>
+				-->
 			</div>
 		</div>
 
