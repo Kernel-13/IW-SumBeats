@@ -2,6 +2,8 @@ INSERT INTO user (name,  password, roles) VALUES ('aa', '$2a$04$REm1Essx929jTwp.
 INSERT INTO user (name,  password, roles) VALUES ('bb', '$2a$04$en1YpFHaEFXLA1/cZKZWYehSSioiVgZZ.PWQ3UIKtyAvMMdCw2hTS', 'USER');
 INSERT INTO user (name,  password, roles) VALUES ('cc', '$2a$04$9paG.F4jg.s7OIg81TT.xOmAv7v5SOAmOO3mKeGUTdZD4G8DhU7q.', 'USER');
 INSERT INTO user (name,  password, roles) VALUES ('dd', '$2a$04$opmvKXic.PazWdk3qryox.Nv82iNqgl04x2sl6fUmAfLsYBC8TUbG', 'ADMIN');
-INSERT INTO proyecto (name ,global_rating, week_rating) VALUES ('someone', 20, 20);
-INSERT INTO proyecto (name ,global_rating, week_rating) VALUES ('other', 15, 15);
-INSERT INTO proyecto (name ,global_rating, week_rating) VALUES ('another', 10,10);
+INSERT INTO proyecto (name ,desc ,global_rating, week_rating) VALUES ('someone', 'someone',20, 20);
+INSERT INTO proyecto (name ,desc ,global_rating, week_rating) VALUES ('other', 'someone',15, 15);
+INSERT INTO proyecto (name ,desc ,global_rating, week_rating) VALUES ('another', 'someone',10,10);
+INSERT INTO proyecto (name ,desc ,global_rating, week_rating) VALUES ('test', 'someone',35, 1);
+INSERT INTO proyecto (name ,desc ,global_rating, week_rating) VALUES ('second test', 'someone',1,100);
