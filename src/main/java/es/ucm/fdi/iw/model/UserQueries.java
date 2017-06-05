@@ -32,6 +32,19 @@ public class UserQueries {
 		}
 	}
 	
+	public User findWithEmail(String email) {
+		try {
+			User p = entityManager.createQuery("from User t where t.email = :email", User.class)
+					.setParameter("email", email)
+					.getSingleResult();
+
+			return p;
+		} catch (Exception e) {
+			log.info("No existe el user", e);
+			return null;
+		}
+	}
+	
 	public User findWithId(long id) {
 		try {
 			User p = entityManager.createQuery("from User t where t.id = :id", User.class)
@@ -55,6 +68,14 @@ public class UserQueries {
 			log.info("No hay usuarios", e);
 			return null;
 		}
+	}
+	
+	public boolean nameAvailable(String title) {
+		return findWithName(title) == null;
+	}
+	
+	public boolean emailAvailable(String email) {
+		return findWithEmail(email) == null;
 	}
 	
 }

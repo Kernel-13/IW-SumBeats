@@ -10,12 +10,12 @@
 </head>
 <body>
 	<%@ include file="../jspf/navbar.jspf"%>
-	<div class="container illust-container">
+	<div class="container-fluid illust-container">
 		<div class="row">
 			<div class="col-sm-10 project-info">
 				<img alt="p-img" src="../static/img/logPro.png">
 				<div class="search-text">
-					<h3>${project.name}</h3>
+					<h3>${project.name} by <a href="/user/${project.author.getName()}">${project.author.getName()}</a></h3>
 					<p>${project.desc}</p>
 				</div>
 			</div>
@@ -24,6 +24,7 @@
 
 			</div>
 		</div>
+		
 		<div class="row">
 			<div style="margin-left: 25px;">
 				<h4>Participantes:</h4>
@@ -31,9 +32,9 @@
 			<div class="col-sm-12 collaborators">
 				<c:forEach items="${project.collaborators}" var="c">
 					<div class="project-collaborators">
-						<a href="user"><img alt="pr1" src="static/img/logUsu.png"></a>
+						<a href="/user/${c.name}"><img alt="pr1" src="static/img/logUsu.png"></a>
 						<div class="caption">
-							<p>${c.name}</p>
+							<p><a href="/user/${c.name}">${c.name}</a></p>
 						</div>
 					</div>
 				</c:forEach>
@@ -53,6 +54,19 @@
 							</li>
 						</div>
 					</c:forEach>
+						<form class="form-horizontal" action="/addTrack" method="post">
+							<input type="text" name="track" class="form-control" id="title"
+										placeholder="Titulo" required="required">
+							<input type="hidden" name="project" value="${project.name}" />
+							<input type="hidden" name="user" value="<sec:authentication	property="principal.username" />" />
+							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+							<div class="form-group">
+								<div class="col-sm-12 submitButton">
+									<input type="submit" class="btn btn-success"
+										value="Crear Track">
+								</div>
+							</div>
+						</form>
 				</div>
 			</div>
 		</div>

@@ -43,21 +43,22 @@ public class RootController {
 		return "home";
 	}
 
-	@GetMapping({ "/user", "/profile" })
-	public String usuario() {
-		return "user";
-	}
-
 	@GetMapping({ "/user/{name}", "/profile/{name}" })
 	public String showusuario(@PathVariable String name, Model m) {
 		UserQueries us = new UserQueries(entityManager);
-		User u = us.findWithName(name);
-		List<Proyecto> lista  = u.getProjects();
-
-		m.addAttribute("user", u);
-		m.addAttribute("lista",lista);
 		
-		return "user";
+		if(!us.nameAvailable(name)){
+			User u = us.findWithName(name);
+			List<Proyecto> lista  = u.getProjects();
+
+			m.addAttribute("user", u);
+			m.addAttribute("lista",lista);
+			
+			return "user";
+		} else {
+			return "error";
+		}
+		
 	}
 
 	/*
@@ -115,30 +116,56 @@ public class RootController {
 			@RequestParam(required = true) String email,
 			@RequestParam(required = true) String pass, 
 			@RequestParam(required = true) String desc) {
-		User u = new User();
-		u.setName(name);
-		u.setEmail(email);
-
-		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		u.setPassword(passwordEncoder.encode(pass));
+		UserQueries uq = new UserQueries(entityManager);
 		
-		u.setDescription(desc);
-		u.setBandeja(new ArrayList<>());
-		u.setProjects(new ArrayList<>());
-		u.setCollaborations(new ArrayList<>());
-		u.setFriends(new ArrayList<>());
-		u.setRoles("USER");
+		if(uq.nameAvailable(name) && uq.emailAvailable(email)){
+			User u = new User();
+			u.setName(name);
+			u.setEmail(email);
 
-		logger.info(name);
-		this.entityManager.persist(u);
-		return "addUser";
+			PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+			u.setPassword(passwordEncoder.encode(pass));
+			
+			u.setDescription(desc);
+			u.setBandeja(new ArrayList<>());
+			u.setProjects(new ArrayList<>());
+			u.setCollaborations(new ArrayList<>());
+			u.setFriends(new ArrayList<>());
+			u.setRoles("USER");
+
+			logger.info(name);
+			this.entityManager.persist(u);
+			
+			return "redirect:/user/" + name;
+		} else {
+			return "error";
+		}
+		
 	}
 
+	@GetMapping("/error")
+	public String error() {
+		return "error";
+	}
+	
 	@GetMapping("/project/{proyecto}")
 	@Transactional
 	public String project(@PathVariable String proyecto, Model m) {	
 		ProyectoQueries pq = new ProyectoQueries(this.entityManager);
 		Proyecto pro = pq.findWithName(proyecto);
+		if(pro==null){
+			//TRATAMIENTO DE ERRORES
+			
+			return "home";
+		}
+		
+		/*TrackQueries tr = new TrackQueries(this.entityManager);
+		Track track = tr.findWithId(1);
+		
+		pro.setCurrentTracks(new ArrayList<>());
+		for(int i = 0; i < 5; i++){
+			pro.getCurrentTracks().add(track);
+		}*/
 		m.addAttribute("project", pro);
 		return "project";
 	}
@@ -174,6 +201,46 @@ public class RootController {
 		
 		return "redirect:/project/" + proy.getName();
 		//return project(proy.getName(),m);
+	}
+	
+	@RequestMapping(value="/addTrack", method=RequestMethod.POST)
+	@Transactional
+	public String addTrack(@RequestParam(required = true) String track, 
+			@RequestParam(required = true) String project, @RequestParam(required = true) String user, 
+			HttpSession s, Model m){
+		if(new ProyectoQueries(this.entityManager).nameAvailable(project)){
+			//NO hay un proyecto con ese nombre
+			logger.info("Nombre de proyecto NO registrado");
+			return "redirect:/";
+		}
+		if(new TrackQueries(this.entityManager).nameAvailable(project)){
+			//Ese track ya está registrado
+			logger.info("Nombre de track ya registrado");
+			return "redirect:/project/" + project;
+		}
+		Proyecto proy = new ProyectoQueries(this.entityManager).findWithName(project);
+		Track nueva = new Track();
+		nueva.setName(track);
+		if(proy.getAuthor().getName()==user)//si eres el creador del proyecto
+			nueva.setStatus("activa");
+		else //si NO eres el creador ¿¿¿¿ y si ya eres colaborador ????
+			nueva.setStatus("pendiente");
+		User creador = new UserQueries(this.entityManager).findWithName(user);
+		nueva.setCreator(creador);
+		this.entityManager.persist(nueva);
+		
+		List<Track> lista = proy.getCurrentTracks();
+		lista.add(nueva);
+		proy.setCurrentTracks(lista);
+		
+		this.entityManager.persist(proy);
+		
+		//tecnicamente no hace falta modificar también el del usuario ?????
+		
+		logger.info("Redirigido. ¿TODO BIEN?");
+		//return "redirect:/editor/" + nueva.getId();
+		
+		return "redirect:/editor/" + new TrackQueries(this.entityManager).findWithName(track).getId();
 	}
 	
 	// Ejemplo : Reconocimiento de Usuario

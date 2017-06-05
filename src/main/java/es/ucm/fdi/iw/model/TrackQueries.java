@@ -45,4 +45,8 @@ public class TrackQueries {
 		}
 	}
 	
+	public boolean nameAvailable(String title) {
+		return findWithName(title) == null;
+	}
+	
 }
