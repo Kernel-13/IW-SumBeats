@@ -1,4 +1,5 @@
 package es.ucm.fdi.iw.controller;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -8,11 +9,18 @@ import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import es.ucm.fdi.iw.model.Proyecto;
@@ -26,12 +34,12 @@ import es.ucm.fdi.iw.model.UserQueries;
 public class RootController {
 
 	private static final Logger logger = LoggerFactory.getLogger(RootController.class);
-
+	
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	@GetMapping({ "/", "/index" })
-	public String root(HttpSession s) {		
+	public String root(HttpSession s) {
 		return "home";
 	}
 
@@ -39,12 +47,16 @@ public class RootController {
 	public String usuario() {
 		return "user";
 	}
-	
+
 	@GetMapping({ "/user/{name}", "/profile/{name}" })
 	public String showusuario(@PathVariable String name, Model m) {
 		UserQueries us = new UserQueries(entityManager);
 		User u = us.findWithName(name);
+		List<Proyecto> lista  = u.getProjects();
+
 		m.addAttribute("user", u);
+		m.addAttribute("lista",lista);
+		
 		return "user";
 	}
 
@@ -58,23 +70,6 @@ public class RootController {
 		List<Proyecto> lista = pq.getProjectSearch("e");
 		m.addAttribute("lista", lista);
 		return "search";
-	}
-
-	@GetMapping("/project/{proyecto}")
-	@Transactional
-	public String project(@PathVariable String proyecto, Model m) {	
-		ProyectoQueries pq = new ProyectoQueries(entityManager);
-		Proyecto pro = pq.findWithName(proyecto);
-		
-		TrackQueries tr = new TrackQueries(entityManager);
-		Track track = tr.findWithId(1);
-		
-		pro.setCurrentTracks(new ArrayList<>());
-		for(int i = 0; i < 5; i++){
-			pro.getCurrentTracks().add(track);
-		}
-		m.addAttribute("project", pro);
-		return "project";
 	}
 
 	@GetMapping("/trendy")
@@ -100,11 +95,87 @@ public class RootController {
 		return "editor";
 	}
 	
-	@GetMapping("/addSong")
-	public String addSong() {
-		return "addSong";
+	@GetMapping("/users")
+	public String users(Model m) {
+		UserQueries uq = new UserQueries(entityManager);
+		List<User> lista = uq.allUsers();
+		m.addAttribute("lista", lista);
+		logger.info("Nº Usuarios Controller: " + lista.size());
+		return "users";
+	}
+	
+	@GetMapping("/addUser")
+	public String addUser() {
+		return "addUser";
+	}
+	
+	@RequestMapping(value = "/addUser", method = RequestMethod.POST)
+	@Transactional
+	public String addUser(@RequestParam(required = true) String name, 
+			@RequestParam(required = true) String email,
+			@RequestParam(required = true) String pass, 
+			@RequestParam(required = true) String desc) {
+		User u = new User();
+		u.setName(name);
+		u.setEmail(email);
+
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		u.setPassword(passwordEncoder.encode(pass));
+		
+		u.setDescription(desc);
+		u.setBandeja(new ArrayList<>());
+		u.setProjects(new ArrayList<>());
+		u.setCollaborations(new ArrayList<>());
+		u.setFriends(new ArrayList<>());
+		u.setRoles("USER");
+
+		logger.info(name);
+		this.entityManager.persist(u);
+		return "addUser";
 	}
 
+	@GetMapping("/project/{proyecto}")
+	@Transactional
+	public String project(@PathVariable String proyecto, Model m) {	
+		ProyectoQueries pq = new ProyectoQueries(this.entityManager);
+		Proyecto pro = pq.findWithName(proyecto);
+		m.addAttribute("project", pro);
+		return "project";
+	}
+	
+	@GetMapping("/addProject")
+	public String addProject(){
+		return "addProject";
+	}
+	
+	/*CAMBIAR EL USER DEL FORMULARIO A LA SESIÓN*/
+	@RequestMapping(value="/addProject", method=RequestMethod.POST)
+	@Transactional
+	public String addProject(@RequestParam(required = true) String title, @RequestParam(required = true) String desc, @RequestParam(required = true) String user, HttpSession s, Model m){
+		if(! new ProyectoQueries(this.entityManager).nameAvailable(title)){
+			//Si ya hay un proyecto con ese nombre
+			
+			return "addProject";
+		}
+		Proyecto proy = new Proyecto();
+		proy.setName(title);
+		proy.setDesc(desc);
+		User usuario = new UserQueries(this.entityManager).findWithName(user);
+		proy.setAuthor(usuario);
+		
+		this.entityManager.persist(proy);
+		logger.info("Proyecto agregado a la BD. Nombre de proyecto: " + title + ". Autor: " + user);
+		
+		List<Proyecto> proyectos = usuario.getProjects();
+		proyectos.add(proy);
+		usuario.setProjects(proyectos);
+		
+		this.entityManager.persist(usuario);
+		
+		return "redirect:/project/" + proy.getName();
+		//return project(proy.getName(),m);
+	}
+	
 	// Ejemplo : Reconocimiento de Usuario
 
 	@GetMapping("/login/{role}")
@@ -117,17 +188,17 @@ public class RootController {
 	public String login() {
 		return "login";
 	}
-	
-/*
-	@GetMapping("/login")
-	@ResponseBody
-	@Transactional
-	public String login(HttpSession s) {		
-		ProyectoQueries pq = new ProyectoQueries(entityManager);
-		List<Proyecto> lista = pq.getProjectSearch("e");
-		return lista.toString();
-	}	*/
-	
+
+	/*
+	 * @GetMapping("/login")
+	 * 
+	 * @ResponseBody
+	 * 
+	 * @Transactional public String login(HttpSession s) { ProyectoQueries pq =
+	 * new ProyectoQueries(entityManager); List<Proyecto> lista =
+	 * pq.getProjectSearch("e"); return lista.toString(); }
+	 */
+
 	@GetMapping("/logout")
 	public String logout() {
 		return "logout";

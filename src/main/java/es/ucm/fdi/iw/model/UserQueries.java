@@ -45,4 +45,16 @@ public class UserQueries {
 		}
 	}
 	
+	public List<User> allUsers() {
+		try {
+			List<User> p = entityManager.createQuery("FROM User").getResultList();
+			log.info("Nº Usuarios Query: " + p.size());
+			return  p;
+			
+		} catch (Exception e) {
+			log.info("No hay usuarios", e);
+			return null;
+		}
+	}
+	
 }

@@ -1,0 +1,173 @@
+body {
+    background: url('../img/silkbrush8.png');
+    background-repeat: space;
+    background-color: #303030;
+    background-attachment: fixed;
+    color: white;
+}
+
+.navbar span {
+    color: crimson;
+}
+
+
+/*Desde aquí*/
+
+#titulo{
+    font-size: 4em;
+    font-family: fantasy;
+    color: #DAA520;
+}
+
+div h4 {
+    font-size: 2em;
+}
+
+div p {
+    font-size: 1.1em;
+    color: #F0F8FF;
+}
+
+.row{
+    margin: 1px;
+    margin-top: 45px;
+}
+
+.headercomentario{
+    background: #000000;
+    text-align: center;
+    font-weight: bold;
+}
+
+#cabecera {
+    margin-top: 40px;
+}
+
+#subt {
+    color: crimson;
+}
+
+footer {
+    text-align: center;
+    background-color: #303030;
+    clear: both;
+}
+
+.botones-tabla {
+    width: 100%;
+    text-align: center;
+    align-items: center;
+    align-content: center;
+    align-self: center;
+}
+
+.posicion{
+    align-content: center;
+}
+
+#nomautor{
+   text-align: center;
+}
+
+#nomcancion{
+   text-align: center;
+}
+
+#visu{
+   text-align: center;
+}
+
+#barra{
+   text-align: center;
+}
+
+h1{
+    font-size: 3em;
+    font-family: fantasy;
+    text-align: center;
+}
+
+.top{
+
+    padding-top: 13px;
+    color:#DAA520;
+    font-size: 3em;
+    margin: 0px 0px 10px 10px;
+}
+
+#rojo{
+    font-family: fantasy;
+    color: red;
+}
+
+#acont{
+	font-size: 3em;
+    font-family: "Times New Roman", Georgia, serif;
+    color: white;	
+}
+
+#foto{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border:none;
+}
+
+.centrar{
+	text-align:center;
+}
+
+.ilust{
+    /*max-width: 300px;*/
+    /*height: 300px;*/
+    display: block; 
+    margin: auto;
+    background-color: black;
+    width: 50%;/*con estos parámetros*/
+    height: auto; /*hacemos que sea responsive*/    
+    border: silver 10px solid; 	  
+  	padding: 10px;
+  	text-align: justify;
+}
+
+.ilustbarralateral {
+    /*max-width: 300px;*/
+    /*height: 300px;*/
+    display: block; 
+    margin: auto;
+    background-color: black;
+    width: 50%;/*con estos parámetros*/
+    height: auto; /*hacemos que sea responsive*/ 
+    border: #000000 2px solid; 	   
+}
+
+@font-face{
+	font-family:KGChasingCars;
+	src:url(/AW-WEB-2-master/fuentes/KGChasingCars.ttf);
+}
+
+.titulobonito{
+	color:#FFFFE0;
+    font-size: 5em;
+    font-family:KGChasingCars;	
+}
+
+.just-user-list p{
+    font-size: 14px;
+}
+
+.just-user-list a{
+    color: darkgray;
+    font-size: 24px;
+}
+
+.just-user-list img{
+    max-height: 250px;
+    margin: auto;
+}
+
+#estilotitulo{
+	font-style: italic;
+	font-size: 2em;
+}
+

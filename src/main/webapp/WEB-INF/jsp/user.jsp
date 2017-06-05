@@ -29,96 +29,19 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-sm-3">
-					<div class="project-view">
-						<a href="/SumBeats/project"><img alt="pr1"
-							src="../static/img/logPro.png"></a>
-						<div class="caption">
-							<p>Project Name #1</p>
+				<c:forEach items="${lista}" var="c">
+					<div class="col-sm-3">
+						<div class="project-view">
+							<a href="/project/${c.name}"><img alt="pr1"
+								src="../static/img/logPro.png"></a>
+							<div class="caption">
+								<p>${c.name}</p>
+							</div>
 						</div>
 					</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="project-view">
-						<a href="/SumBeats/project"><img alt="pr1"
-							src="../static/img/logPro.png"></a>
-						<div class="caption">
-							<p>Project Name #1</p>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="project-view">
-						<a href="/SumBeats/project"><img alt="pr1"
-							src="../static/img/logPro.png"></a>
-						<div class="caption">
-							<p>Project Name #1</p>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="project-view">
-						<a href="/SumBeats/project"><img alt="pr1"
-							src="../static/img/logPro.png"></a>
-						<div class="caption">
-							<p>Project Name #1</p>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="project-view">
-						<a href="/SumBeats/project"><img alt="pr1"
-							src="../static/img/logPro.png"></a>
-						<div class="caption">
-							<p>Project Name #1</p>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="project-view">
-						<a href="/SumBeats/project"><img alt="pr1"
-							src="../static/img/logPro.png"></a>
-						<div class="caption">
-							<p>Project Name #1</p>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="project-view">
-						<a href="/SumBeats/project"><img alt="pr1"
-							src="../static/img/logPro.png"></a>
-						<div class="caption">
-							<p>Project Name #1</p>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="project-view">
-						<a href="/SumBeats/project"><img alt="pr1"
-							src="../static/img/logPro.png"></a>
-						<div class="caption">
-							<p>Project Name #1</p>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="project-view">
-						<a href="/SumBeats/project"><img alt="pr1"
-							src="../static/img/logPro.png"></a>
-						<div class="caption">
-							<p>Project Name #1</p>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="project-view">
-						<a href="/SumBeats/project"><img alt="pr1"
-							src="../static/img/logPro.png"></a>
-						<div class="caption">
-							<p>Project Name #1</p>
-						</div>
-					</div>
-				</div>
+
+				</c:forEach>
+				
 
 			</div>
 		</sec:authorize>

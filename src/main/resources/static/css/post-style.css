@@ -1,0 +1,113 @@
+@import url("https://fonts.googleapis.com/css?family=Fira+Sans|Oxygen");
+
+body {
+	font-family: 'Oxygen', sans-serif;
+}
+
+body h1, h2, h3 {
+	font-family: 'Fira Sans', sans-serif;
+}
+
+#song-info p{
+	font-size: 16px;
+	font-family: 'Fira Sans', sans-serif;
+}
+
+.container > div {
+	margin-bottom: 40px;
+}
+
+#author-info h2, h3 {
+	margin: 0;
+}
+
+#author-info h2, p{
+	display: inline-block;
+}
+
+.text-change{
+	font-size: 18px;
+	color: #FFE8D1;
+}
+
+.text-change a{
+	color: #FFE8D1;
+}
+
+#illust {
+	max-width: 100%; 
+	display: block; 
+	margin: auto;
+	background-color: black;
+}
+
+.illust-text a{
+	font-weight: bolder;
+	 
+}
+
+.comment {
+	margin: 10px 0 10px 0;
+	padding-right: 10px;
+}
+
+.bigger-text {
+	font-size: 16px;
+}
+
+#post-a-commment textarea {
+	font-family: 'Oxygen', sans-serif;
+	width: 100%;
+	height: 200px;
+	color: black;
+	padding: 10px 10px 10px 10px;
+	margin-bottom: 20px;
+}
+
+#post-a-commment label{
+	font-family: 'Fira Sans', sans-serif;
+	font-size: 21px;
+}
+
+.gray-text {
+	color: gray;
+}
+
+.media-body {
+	font-family: 'Oxygen', sans-serif;
+	font-size: 15px;
+}
+
+#post-button {
+	margin: auto;
+}
+
+@media screen and (max-width: 768px){
+	#song-player {
+		width: 100%;
+	}
+}
+
+.ratings {
+	float: right;
+	margin-top: 10px;
+}
+
+.points {
+	float: right;
+	color: peachpuff;
+	margin-top: 20px;
+}
+
+.illust-text .col-md-4 .btn {
+	margin-top: 10px;
+	width: 100%;
+}
+
+hr {
+	margin: 20px;
+}
+
+audio {
+	width: 100%;
+}

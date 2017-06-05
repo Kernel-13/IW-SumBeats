@@ -1,0 +1,63 @@
+.upload {
+	text-align: center;
+	font-family: 'Open Sans', sans-serif;
+}
+
+#descBox {
+	height: 350px;
+	color: black;
+	padding-right: 10px;
+	padding-left: 10px;
+}
+
+.previsualizacion {
+	margin-bottom: 20px;
+}
+
+.submitButton {
+	/*font-family: 'Open Sans', sans-serif;
+	font-family: 'Muli', sans-serif;*/
+	font-weight: bold;
+	color: black;
+	font-size: 20px;
+	width: 50%;
+	height: 50px;
+}
+
+.preview {
+	max-height: 300px;
+	max-width: 100%;
+	margin: auto;
+}
+
+.form-control {
+	width: 100%;
+}
+
+.panel-info {
+    background-color: rgba(238, 238, 238, 0.8);
+}
+
+.panel-body {
+	color: gray;
+}
+
+.new-input {
+	margin: auto;
+	width: 50%;
+	padding: 10px;
+}
+
+.section div {
+	text-align: center;
+}
+
+.left-side {
+	border-left: 1px solid darkgray;
+}
+
+@media screen and (max-width: 768px) {
+	.left-side {
+		border: none;
+	}
+}

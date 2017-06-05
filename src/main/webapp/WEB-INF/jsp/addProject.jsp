@@ -19,7 +19,7 @@
 				<div class="panel panel-info">
 					<div class="panel-heading">Creación de Proyecto</div>
 					<div class="panel-body">
-						<form class="form-horizontal" action="/addSong" method="post">
+						<form class="form-horizontal" action="/addProject" method="post">
 							<div class="form-group">
 								<div class="col-sm-12">
 									<label class="sr-only" for="title">Titulo</label> <input
@@ -36,6 +36,9 @@
 							</div>
 							<input type="hidden" name="${_csrf.parameterName}"
 								value="${_csrf.token}" />
+							<input type="hidden" name="user"
+								value="<sec:authentication
+								property="principal.username" />" />
 							<div class="form-group">
 								<div class="col-sm-12 submitButton">
 									<input type="submit" class="btn btn-success"

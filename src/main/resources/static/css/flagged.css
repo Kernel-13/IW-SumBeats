@@ -1,0 +1,48 @@
+table {
+	width: 100%;
+}
+
+table th {
+	font-size: 1.3em;
+}
+
+table td {
+	font-size: 1em;
+	vertical-align: middle;
+}
+
+table a {
+	color: lightgray;
+	margin: 5px 0 5px 0;
+}
+
+table th, td {
+	padding: 5px;
+	text-align: center;
+	border-bottom: 1px solid #999;
+	font-family: 'Muli', serif;
+}
+
+@media screen and (max-width: 768px) {
+	.btn {
+		font-size: 0.8em;
+		padding: 3px 6px;
+	}
+
+	table th {
+		font-size: 0.9em;
+	}
+
+	table td {
+		font-size: 0.8em;
+		vertical-align: middle;
+	}
+
+	td:first-child{
+		display: none;
+	}
+
+	th:first-child{
+		display: none;
+	}
+}

@@ -10,7 +10,7 @@
 </head>
 <body>
 	<%@ include file="../jspf/navbar.jspf"%>
-	<div class="container-fluid illust-container">
+	<div class="container illust-container">
 		<div class="row">
 			<div class="col-sm-10 project-info">
 				<img alt="p-img" src="../static/img/logPro.png">
@@ -53,11 +53,6 @@
 							</li>
 						</div>
 					</c:forEach>
-					<div class="col-12-md project-collaborators">
-						<img alt="Track" class="img-responsive img-circle"
-							style="height: 50px" src="../static/img/0404-negro.jpg"> <a
-							href="../editor/1">Prueba</a>
-					</div>
 				</div>
 			</div>
 		</div>

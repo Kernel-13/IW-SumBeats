@@ -13,17 +13,13 @@
 		<div class="row">
 			<div class="col-sm-12 illust-box">
 				<div style="text-align: center; margin-bottom: 50px;">
-					<h1>Tendencias</h1>
+					<h1>Usuarios</h1>
 				</div>
-				<c:forEach items="${lista}" var="c">
-					<div class="trendy">
-						<a href="project/${c.name}"><img alt="res1" src="static/img/logPro.png"></a>
-						<div class="search-text">
-							<h3>${c.name}</h3>
-							<p>${c.desc}</p>
-						</div>
-					</div>
 
+				<c:forEach items="${lista}" var="c">
+					<div>
+						<h3>${c.name}</h3><br>
+					</div>
 				</c:forEach>
 
 			</div>

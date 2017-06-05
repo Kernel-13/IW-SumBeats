@@ -30,8 +30,7 @@ body {
 }
 
 .illust-box {
-	padding-top: 5px;
-	padding-bottom: 15px;
+	padding-top: 15px;
 }
 
 .desc-box-illust {
@@ -42,16 +41,13 @@ body {
 	padding: 20px 4px 10px 4px;
 }
 
-.illust-container{
-
-}
 
 .ckeditor-box {
 	padding: 15px 0 15px 0; 
 }
 
 .busqueda{
-	padding-top: 20px;
+	padding-top: 30px;
 	position: fixed;
 	float: left;
 	height: 100%;
@@ -64,7 +60,11 @@ body {
 }
 
 .search-text{
-	padding: 10px 20px 10px 20px;
+    width: 100%;
+    text-align: center;
+    border-left: 2px dashed;
+    padding: 10px 20px 10px 20px;
+    margin-left: 20px;
 }
 
 .user-profile{
@@ -83,7 +83,7 @@ body {
 
 .search-1 {
 	display: flex;
-	margin: 20px 0 20px 0;
+	margin: 20px;
 }
 
 .project-info {
@@ -126,10 +126,20 @@ body {
 	float: right;
 }
 
+.list-item {
+	margin: 20px;
+	border-radius: 10px;
+}
+
 .trendy{
+	border-radius: 10px;
 	display: flex;
-	margin: 20px 200px 20px 200px;
-	background: #3f3f3f;
+	margin: 20px;
+	background: #464646;
+}
+
+.trendy img {
+	max-height: 250px;
 }
 
 .project-ratings{

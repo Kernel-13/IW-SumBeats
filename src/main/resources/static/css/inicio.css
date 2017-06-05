@@ -1,0 +1,147 @@
+body {
+	background: url('../img/silkbrush8.png');
+	background-repeat: space;
+	background-color: #303030;
+	background-attachment: fixed;
+	color: white;
+}
+
+p{
+	text-align: center;
+}
+
+footer{
+	text-align: center;
+	background-color: #303030;
+}
+.navbar span {
+	color: crimson; 
+}
+
+.desc-box-illust a{
+	color: white;
+}
+
+h1 span {
+	color: crimson;
+}
+
+h1 {
+	text-align: center;
+}
+
+div h3{
+	text-align: center;
+	background-color: black;
+	border-color: white;
+}
+
+h4{
+	text-align: center;
+}
+
+.row{
+	padding-top: 50px;
+}
+
+.ilust {
+	max-width: 320px;
+	height: 316px;
+	display: block; 
+	margin: auto;
+	background-color: black;
+}
+
+.audio-box{
+	text-align: center;
+}
+
+.audio-img {
+	width: 300px;
+	height: 280px;
+	display: block; 
+	margin: auto;
+	background-color: black;
+}
+
+.audio-player{
+	padding-bottom: 0px;
+	height: 31px;
+	width: 300px;
+	align-self: center;
+}
+
+.audio-img-carusel {
+	max-height: 230px;
+	margin: auto;
+	background-color: black;
+}
+
+.audio-player-carusel{
+	width: 70%;
+}
+
+.ilust-carusel {
+	width: auto;
+	max-height: 267px; 
+	margin: auto;
+	background-color: black;
+}
+
+#carusel{
+	align-content: center;
+	align-items: center;
+	text-align: center;
+}
+
+#box {
+	width: 800px
+	height: 800px;
+	text-align: center;
+	align-items: center;
+	align-self: center;
+}
+
+.panel{
+
+}
+
+.panel-body{
+	padding-top: 40px;
+	background-color: #303030;
+	color: white;
+	text-align: center;
+	height: 200px;
+}
+
+.desc-box-illust {
+	padding: 10px 4px 15px 4px;
+}
+
+.botones-tabla{
+	width: 100%;
+	text-align: center;
+	align-items: center;
+	align-content: center;
+	align-self: center;
+}
+
+#boton-paginado{
+	padding-bottom: 2px;
+}
+
+#botones-numericos{
+	padding-left: 50px;
+	padding-right: 50px;
+}
+
+.carousel-xanadu a:hover{
+	text-decoration: none;
+}
+
+
+.carousel-xanadu span{
+	padding: 5px 10px 5px 10px;
+	background-color: black;
+	color: lightgray;
+}
