@@ -3,6 +3,9 @@ package es.ucm.fdi.iw.model;
 import javax.persistence.*;
 
 @Entity
+@NamedQueries({
+		@NamedQuery(name = "trackByName", query = "from Track t where t.name = :name")
+})
 public class Track {
 	private long id;
 	private String name;

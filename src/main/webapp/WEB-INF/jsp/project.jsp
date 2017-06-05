@@ -57,8 +57,7 @@
 						<form class="form-horizontal" action="/addTrack" method="post">
 							<input type="text" name="track" class="form-control" id="title"
 										placeholder="Titulo" required="required">
-							<input type="hidden" name="project" value="${project.name}" />
-							<input type="hidden" name="user" value="<sec:authentication	property="principal.username" />" />
+							<input type="hidden" name="project" value="${project.id}" />
 							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 							<div class="form-group">
 								<div class="col-sm-12 submitButton">

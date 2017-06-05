@@ -1,5 +1,6 @@
 package es.ucm.fdi.iw.controller;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -9,6 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -38,8 +40,14 @@ public class RootController {
 	@PersistenceContext
 	private EntityManager entityManager;
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 	@GetMapping({ "/", "/index" })
-	public String root(HttpSession s) {
+	public String root(HttpSession s, Principal p) {
+		s.setAttribute("user", entityManager.createQuery(
+				"from User where name = :name", User.class).setParameter(
+						"name", p.getName()).getSingleResult());
 		return "home";
 	}
 
@@ -89,9 +97,7 @@ public class RootController {
 
 	@GetMapping("/editor/{t}")
 	public String editor(@PathVariable long t, Model m) {
-		TrackQueries pq = new TrackQueries(entityManager);
-		Track track = pq.findWithId(t);
-		m.addAttribute("track", track);
+		m.addAttribute("track", entityManager.find(Track.class, t));
 		m.addAttribute("us", "bb");
 		return "editor";
 	}
@@ -123,7 +129,6 @@ public class RootController {
 			u.setName(name);
 			u.setEmail(email);
 
-			PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 			u.setPassword(passwordEncoder.encode(pass));
 			
 			u.setDescription(desc);
@@ -206,41 +211,45 @@ public class RootController {
 	@RequestMapping(value="/addTrack", method=RequestMethod.POST)
 	@Transactional
 	public String addTrack(@RequestParam(required = true) String track, 
-			@RequestParam(required = true) String project, @RequestParam(required = true) String user, 
+			@RequestParam(required = true) long project,
 			HttpSession s, Model m){
-		if(new ProyectoQueries(this.entityManager).nameAvailable(project)){
+
+		User u = (User)s.getAttribute("user");
+		// si lo necesitase "fresco": u = entityManager.find(User.class, u.getId());
+
+		Proyecto p = entityManager.find(Proyecto.class, project);
+		if (p == null){
 			//NO hay un proyecto con ese nombre
 			logger.info("Nombre de proyecto NO registrado");
 			return "redirect:/";
 		}
-		if(new TrackQueries(this.entityManager).nameAvailable(project)){
+		if (TrackQueries.countWithName(entityManager, track) > 0){
 			//Ese track ya está registrado
 			logger.info("Nombre de track ya registrado");
 			return "redirect:/project/" + project;
 		}
-		Proyecto proy = new ProyectoQueries(this.entityManager).findWithName(project);
 		Track nueva = new Track();
 		nueva.setName(track);
-		if(proy.getAuthor().getName()==user)//si eres el creador del proyecto
+		if (p.getAuthor().getId() == u.getId()) {
+			// eres el creador: auto-activado!
 			nueva.setStatus("activa");
-		else //si NO eres el creador ¿¿¿¿ y si ya eres colaborador ????
+		} else {
+			// si NO eres el creador ¿¿¿¿ y si ya eres colaborador ????
 			nueva.setStatus("pendiente");
-		User creador = new UserQueries(this.entityManager).findWithName(user);
-		nueva.setCreator(creador);
-		this.entityManager.persist(nueva);
-		
-		List<Track> lista = proy.getCurrentTracks();
-		lista.add(nueva);
-		proy.setCurrentTracks(lista);
-		
-		this.entityManager.persist(proy);
-		
-		//tecnicamente no hace falta modificar también el del usuario ?????
+		}
+		nueva.setCreator(u);
+		entityManager.persist(nueva);
+		p.getCurrentTracks().add(nueva);
+
+		// tecnicamente no hace falta modificar también el del usuario ?????
 		
 		logger.info("Redirigido. ¿TODO BIEN?");
 		//return "redirect:/editor/" + nueva.getId();
-		
-		return "redirect:/editor/" + new TrackQueries(this.entityManager).findWithName(track).getId();
+		entityManager.flush();
+		logger.info("flush completado; nuevo id es " + nueva.getId());
+
+
+		return "redirect:/editor/" + nueva.getId();
 	}
 	
 	// Ejemplo : Reconocimiento de Usuario
