@@ -9,7 +9,7 @@
 </head>
 <body>
 	<%@ include file="../jspf/navbar.jspf"%>
-	<div class="container-fluid illust-container">
+	<div class="container illust-container">
 		<div class="row">
 			<div class="col-sm-12 illust-box">
 				<div style="text-align: center; margin-bottom: 50px;">

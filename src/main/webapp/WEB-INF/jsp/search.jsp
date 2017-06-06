@@ -9,48 +9,27 @@
 </head>
 <body>
 	<%@ include file="../jspf/navbar.jspf"%>
-	<div class="container-fluid illust-container"
-		style="padding: 0px 0px 20px 0px;">
-
-		<div class="col-sm-3 busqueda">
-			<form class="navbar-form navbar-left">
-				<div class="input-group">
-					<input type="text" class="form-control" placeholder="Search">
-					<div class="input-group-btn">
-						<button class="btn btn-default" type="submit">
-							<i class="glyphicon glyphicon-search"></i>
-						</button>
-					</div>
-				</div>
-			</form>
+	<div class="container illust-container"
+		style="padding: 20px 0px 20px 0px;">
+		<div class="row">
+			<div class="co-md-12" style="text-align: center">
+				<h2>Resultados de la Busqueda</h2>
+			</div>
 		</div>
-		
-		<div class="col-sm-9 search-result">
-			<c:forEach items="${lista}" var="c">
-				<div class="search-1">
-					<a href="project/${c.name}"><img alt="res1" src="static/img/logPro.png"></a>
-					<div class="search-text">
-						<h3>${c.name}</h3>
-						<p>${c.desc}</p>
+		<div class="row">
+			<div class="col-sm-12 search-result">
+				<c:forEach items="${lista}" var="c">
+					<div class="search-1">
+						<a href="project/${c.name}"><img alt="res1"
+							src="static/img/logPro.png"></a>
+						<div class="search-text">
+							<h3>${c.name}</h3>
+							<p>${c.desc}</p>
+						</div>
 					</div>
-				</div>
-			</c:forEach>
-
-			<!--
-			</a><div class="search-1">
-				<a href="project"><img alt="res1" src="static/img/logPro.png"></a>
-				<div class="search-text">
-					<h3>Result #1</h3>
-					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-						do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-						enim ad minim veniam, quis nostrud exercitation ullamco laboris
-						nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-						reprehenderit in voluptate velit esse cillum dolore eu fugiat
-						nulla pariatur.</p>
-				</div>
--->
+				</c:forEach>
+			</div>
 		</div>
-	</div>
 	</div>
 </body>
 </html>

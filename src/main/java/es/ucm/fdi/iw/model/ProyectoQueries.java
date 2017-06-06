@@ -12,13 +12,13 @@ public class ProyectoQueries {
 
 	private static Logger log = Logger.getLogger(ProyectoQueries.class);
 
-	private EntityManager entityManager;
+	//private EntityManager entityManager;
 
-	public ProyectoQueries(EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
+//	public ProyectoQueries(EntityManager entityManager) {
+//		this.entityManager = entityManager;
+//	}
 
-	public Proyecto findWithName(String name) {
+	public static Proyecto findWithName(EntityManager entityManager, String name) {
 		try {
 			Proyecto p = entityManager.createQuery("from Proyecto p where p.name = :name", Proyecto.class)
 					.setParameter("name", name).getSingleResult();
@@ -30,7 +30,7 @@ public class ProyectoQueries {
 		}
 	}
 
-	public List<Proyecto> getTrendy() {
+	public static List<Proyecto> getTrendy(EntityManager entityManager) {
 		try {
 			TypedQuery<Proyecto> query = entityManager
 					.createQuery("from Proyecto p order by p.weekRating", Proyecto.class).setMaxResults(10);
@@ -42,7 +42,7 @@ public class ProyectoQueries {
 		}
 	}
 
-	public List<Proyecto> getProjectSearch(String search) {
+	public static List<Proyecto> getProjectSearch(EntityManager entityManager, String search) {
 		try {
 			TypedQuery<Proyecto> query = entityManager
 					.createQuery("from Proyecto p where name LIKE CONCAT('%',:text,'%') order by name", Proyecto.class)
@@ -55,11 +55,11 @@ public class ProyectoQueries {
 		}
 	}
 
-	public boolean nameAvailable(String title) {
-		return findWithName(title) == null;
+	public static boolean nameAvailable(EntityManager entityManager, String title) {
+		return findWithName(entityManager, title) == null;
 	}
 
-	public void increasePoints(String name) {
+	public static void increasePoints(EntityManager entityManager, String name) {
 		try {
 			entityManager.createQuery("update Proyecto p set p.weekRating = p.weekRating+1 Where p.name = :name",
 					Proyecto.class).setParameter("name", name);
@@ -69,4 +69,5 @@ public class ProyectoQueries {
 			log.info("No existe el proyecto", e);
 		}
 	}
+	
 }

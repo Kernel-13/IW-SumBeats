@@ -13,13 +13,13 @@ public class UserQueries {
 
 	private static Logger log = Logger.getLogger(UserQueries.class);
 
-	private EntityManager entityManager;
+//	private EntityManager entityManager;
 	
-	public UserQueries(EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
+//	public UserQueries(EntityManager entityManager) {
+//		this.entityManager = entityManager;
+//	}
 	
-	public User findWithName(String name) {
+	public static User findWithName(EntityManager entityManager, String name) {
 		try {
 			User p = entityManager.createQuery("from User t where t.name = :name", User.class)
 					.setParameter("name", name)
@@ -27,12 +27,12 @@ public class UserQueries {
 
 			return p;
 		} catch (Exception e) {
-			log.info("No existe el user", e);
+			log.info("No existe el user con nombre: " + name, e);
 			return null;
 		}
 	}
 	
-	public User findWithEmail(String email) {
+	public static User findWithEmail(EntityManager entityManager, String email) {
 		try {
 			User p = entityManager.createQuery("from User t where t.email = :email", User.class)
 					.setParameter("email", email)
@@ -40,12 +40,12 @@ public class UserQueries {
 
 			return p;
 		} catch (Exception e) {
-			log.info("No existe el user", e);
+			log.info("No existe el user con email: " + email, e);
 			return null;
 		}
 	}
 	
-	public User findWithId(long id) {
+	public static User findWithId(EntityManager entityManager, long id) {
 		try {
 			User p = entityManager.createQuery("from User t where t.id = :id", User.class)
 					.setParameter("id", id)
@@ -53,12 +53,12 @@ public class UserQueries {
 
 			return p;
 		} catch (Exception e) {
-			log.info("No existe el user", e);
+			log.info("No existe el user con id: " +  id, e);
 			return null;
 		}
 	}
 	
-	public List<User> allUsers() {
+	public static List<User> allUsers(EntityManager entityManager) {
 		try {
 			List<User> p = entityManager.createQuery("FROM User").getResultList();
 			log.info("Nº Usuarios Query: " + p.size());
@@ -70,12 +70,12 @@ public class UserQueries {
 		}
 	}
 	
-	public boolean nameAvailable(String title) {
-		return findWithName(title) == null;
+	public static boolean nameAvailable(EntityManager entityManager, String title) {
+		return findWithName(entityManager, title) == null;
 	}
 	
-	public boolean emailAvailable(String email) {
-		return findWithEmail(email) == null;
+	public static boolean emailAvailable(EntityManager entityManager, String email) {
+		return findWithEmail(entityManager, email) == null;
 	}
 	
 }

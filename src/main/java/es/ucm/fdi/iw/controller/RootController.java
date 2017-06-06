@@ -52,11 +52,9 @@ public class RootController {
 	}
 
 	@GetMapping({ "/user/{name}", "/profile/{name}" })
-	public String showusuario(@PathVariable String name, Model m) {
-		UserQueries us = new UserQueries(entityManager);
-		
-		if(!us.nameAvailable(name)){
-			User u = us.findWithName(name);
+	public String showUsuario(@PathVariable String name, Model m) {	
+		if(!UserQueries.nameAvailable(entityManager, name)){
+			User u = UserQueries.findWithName(entityManager, name);
 			List<Proyecto> lista  = u.getProjects();
 
 			m.addAttribute("user", u);
@@ -64,19 +62,21 @@ public class RootController {
 			
 			return "user";
 		} else {
-			return "error";
+			return "redirect:/home";
 		}
 		
 	}
 
-	/*
-	 * @GetMapping("/admin") String admin(){ return "admin"; }
-	 */
-
-	@GetMapping("/search")
+	/*@GetMapping("/search")
 	public String search(Model m) {
-		ProyectoQueries pq = new ProyectoQueries(entityManager);
-		List<Proyecto> lista = pq.getProjectSearch("e");
+		List<Proyecto> lista = ProyectoQueries.getProjectSearch(entityManager,"e");
+		m.addAttribute("lista", lista);
+		return "search";
+	}*/
+	
+	@RequestMapping(value = "/search")
+	public String search(@RequestParam("busqueda") String busqueda, Model m){
+		List<Proyecto> lista = ProyectoQueries.getProjectSearch(entityManager,busqueda);
 		m.addAttribute("lista", lista);
 		return "search";
 	}
@@ -84,8 +84,7 @@ public class RootController {
 	@GetMapping("/trendy")
 	@Transactional
 	public String trendy(Model m) {
-		ProyectoQueries pq = new ProyectoQueries(entityManager);
-		List<Proyecto> lista = pq.getTrendy();
+		List<Proyecto> lista = ProyectoQueries.getTrendy(entityManager);
 		m.addAttribute("lista", lista);
 		return "trendy";
 	}
@@ -104,8 +103,7 @@ public class RootController {
 	
 	@GetMapping("/users")
 	public String users(Model m) {
-		UserQueries uq = new UserQueries(entityManager);
-		List<User> lista = uq.allUsers();
+		List<User> lista = UserQueries.allUsers(entityManager);
 		m.addAttribute("lista", lista);
 		logger.info("Nº Usuarios Controller: " + lista.size());
 		return "users";
@@ -122,29 +120,28 @@ public class RootController {
 			@RequestParam(required = true) String email,
 			@RequestParam(required = true) String pass, 
 			@RequestParam(required = true) String desc) {
-		UserQueries uq = new UserQueries(entityManager);
 		
-		if(uq.nameAvailable(name) && uq.emailAvailable(email)){
-			User u = new User();
-			u.setName(name);
-			u.setEmail(email);
-
-			u.setPassword(passwordEncoder.encode(pass));
-			
-			u.setDescription(desc);
-			u.setBandeja(new ArrayList<>());
-			u.setProjects(new ArrayList<>());
-			u.setCollaborations(new ArrayList<>());
-			u.setFriends(new ArrayList<>());
-			u.setRoles("USER");
-
-			logger.info(name);
-			this.entityManager.persist(u);
-			
-			return "redirect:/user/" + name;
-		} else {
-			return "error";
-		}
+		if(!UserQueries.nameAvailable(entityManager,name) || !UserQueries.emailAvailable(entityManager,email)){
+			return "redirect:/home";
+		}	
+		
+		User u = new User();
+		u.setName(name);
+		u.setEmail(email);
+		u.setPassword(passwordEncoder.encode(pass));
+		
+		u.setDescription(desc);
+		
+		//u.setBandeja(new ArrayList<>());
+		//u.setProjects(new ArrayList<>());
+		//u.setCollaborations(new ArrayList<>());
+		//u.setFriends(new ArrayList<>());
+		
+		u.setRoles("USER");
+		logger.info("Nuevo usuario registrado: " + name);
+		this.entityManager.persist(u);
+		
+		return "redirect:/user/" + name;
 		
 	}
 
@@ -153,24 +150,21 @@ public class RootController {
 		return "error";
 	}
 	
+	@GetMapping("/project")
+	public String project(){
+		return "redirect:/";
+	}
+	
 	@GetMapping("/project/{proyecto}")
 	@Transactional
 	public String project(@PathVariable String proyecto, Model m) {	
-		ProyectoQueries pq = new ProyectoQueries(this.entityManager);
-		Proyecto pro = pq.findWithName(proyecto);
+		Proyecto pro = ProyectoQueries.findWithName(entityManager,proyecto);
 		if(pro==null){
 			//TRATAMIENTO DE ERRORES
 			
-			return "home";
+			return "redirect:/";
 		}
 		
-		/*TrackQueries tr = new TrackQueries(this.entityManager);
-		Track track = tr.findWithId(1);
-		
-		pro.setCurrentTracks(new ArrayList<>());
-		for(int i = 0; i < 5; i++){
-			pro.getCurrentTracks().add(track);
-		}*/
 		m.addAttribute("project", pro);
 		return "project";
 	}
@@ -183,29 +177,82 @@ public class RootController {
 	/*CAMBIAR EL USER DEL FORMULARIO A LA SESIÓN*/
 	@RequestMapping(value="/addProject", method=RequestMethod.POST)
 	@Transactional
-	public String addProject(@RequestParam(required = true) String title, @RequestParam(required = true) String desc, @RequestParam(required = true) String user, HttpSession s, Model m){
-		if(! new ProyectoQueries(this.entityManager).nameAvailable(title)){
+	public String addProject(@RequestParam(required = true) String title, @RequestParam(required = true) String desc, HttpSession s, Model m){
+		if(! ProyectoQueries.nameAvailable(entityManager, title)){
 			//Si ya hay un proyecto con ese nombre
 			
 			return "addProject";
 		}
+		//User usuario = UserQueries.findWithName(entityManager, user);
+		User usuario = (User)s.getAttribute("user");
+		usuario = entityManager.find(User.class, usuario.getId());
+		
 		Proyecto proy = new Proyecto();
 		proy.setName(title);
 		proy.setDesc(desc);
-		User usuario = new UserQueries(this.entityManager).findWithName(user);
 		proy.setAuthor(usuario);
 		
 		this.entityManager.persist(proy);
-		logger.info("Proyecto agregado a la BD. Nombre de proyecto: " + title + ". Autor: " + user);
+		logger.info("Proyecto agregado a la BD. Nombre de proyecto: " + title + ". Autor: " + usuario.getName());
 		
-		List<Proyecto> proyectos = usuario.getProjects();
-		proyectos.add(proy);
-		usuario.setProjects(proyectos);
+		//List<Proyecto> proyectos = usuario.getProjects();
+		//proyectos.add(proy);
+		//usuario.setProjects(proyectos);
+		usuario.getProjects().add(proy);
 		
-		this.entityManager.persist(usuario);
+		//this.entityManager.persist(usuario);
 		
 		return "redirect:/project/" + proy.getName();
 		//return project(proy.getName(),m);
+	}
+	
+	@RequestMapping(value="/addCollaborator", method=RequestMethod.POST)
+	@Transactional
+	public String addCollaborator(@RequestParam(required = true) String colaborador, 
+			@RequestParam(required = true) long project,
+			HttpSession s, Model m){
+		
+		User colab = UserQueries.findWithName(entityManager, colaborador);
+		// si lo necesitase "fresco": u = entityManager.find(User.class, u.getId());
+		
+		Proyecto p = entityManager.find(Proyecto.class, project);
+		
+		if (p == null){
+			//NO hay un proyecto con ese nombre
+			logger.info("Nombre de proyecto NO registrado");
+			return "redirect:/";
+		}
+		logger.info("num colaboradores:" + p.getCollaborators().size());
+		if(colab==null){
+			//NO hay un usuario con ese nombre
+			logger.info("Nombre de usuario NO registrado");
+			return "redirect:/";
+		}
+		if (p.isCollaborator(colab)){
+			//Ese track ya está registrado
+			logger.info("Nombre de track ya registrado");
+			return "redirect:/project/" + p.getName();
+		}
+		
+		
+		/*List<User> colabora = new ArrayList<User>();
+		colabora =  p.getCollaborators();
+		colabora.add(colab);
+		p.setCollaborators(colabora);*/
+		
+		colab.getCollaborations().add(p);
+		p.getCollaborators().add(colab);
+		
+		entityManager.persist(colab);
+		entityManager.persist(p);
+		
+		// tecnicamente no hace falta modificar también el del usuario ?????
+		
+		logger.info("Redirigido. ¿TODO BIEN?");
+		logger.info("num colaboradores:" + p.getCollaborators().size());
+		entityManager.flush();
+		return "redirect:/project/" + p.getName();
+		
 	}
 	
 	@RequestMapping(value="/addTrack", method=RequestMethod.POST)
@@ -230,16 +277,15 @@ public class RootController {
 		}
 		Track nueva = new Track();
 		nueva.setName(track);
-		if (p.getAuthor().getId() == u.getId()) {
-			// eres el creador: auto-activado!
+		if (p.getAuthor().getId() == u.getId() || p.isCollaborator(u)) {
+			//al autor y los colaboradores se les pone directamente en la lista de tracks activas
 			nueva.setStatus("activa");
 		} else {
-			// si NO eres el creador ¿¿¿¿ y si ya eres colaborador ????
+			// si NO eres el creador ni colaborador
 			nueva.setStatus("pendiente");
 		}
 		nueva.setCreator(u);
 		entityManager.persist(nueva);
-		p.getCurrentTracks().add(nueva);
 
 		// tecnicamente no hace falta modificar también el del usuario ?????
 		
@@ -248,6 +294,14 @@ public class RootController {
 		entityManager.flush();
 		logger.info("flush completado; nuevo id es " + nueva.getId());
 
+		if(p.getAuthor().getId() == u.getId() || p.isCollaborator(u)){
+			//al autor y los colaboradores se les pone directamente en la lista de tracks activas
+			p.getCurrentTracks().add(nueva);
+		}else{
+			//a los demás se les mete en la lista de pendientes
+			p.getPendingTracks().add(nueva);
+		}
+		
 
 		return "redirect:/editor/" + nueva.getId();
 	}

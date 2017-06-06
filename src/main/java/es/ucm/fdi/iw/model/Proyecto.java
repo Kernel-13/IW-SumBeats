@@ -108,5 +108,12 @@ public class Proyecto {
 	public void setComments(List<Comentario> comments) {
 		this.comments = comments;
 	}
-	
+	public boolean isCollaborator(User co){
+//		if(collaborators.isEmpty()){
+//			return false;
+		//REDUNDANTE
+		return collaborators.contains(co);
+		
+		
+	}
 }
