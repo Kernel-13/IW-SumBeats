@@ -7,6 +7,7 @@
 <html>
 <head>
 <%@ include file="../jspf/head.jspf"%>
+<title>SumBeats</title>
 </head>
 <body class="frontpage">
 	<%@ include file="../jspf/navbar.jspf"%>

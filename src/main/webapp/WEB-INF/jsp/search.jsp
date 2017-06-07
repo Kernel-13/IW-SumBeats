@@ -6,6 +6,7 @@
 <html>
 <head>
 <%@ include file="../jspf/head.jspf"%>
+<title>Búsqueda</title>
 </head>
 <body>
 	<%@ include file="../jspf/navbar.jspf"%>

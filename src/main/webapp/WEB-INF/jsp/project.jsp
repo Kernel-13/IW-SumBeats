@@ -7,6 +7,7 @@
 <head>
 <%@ include file="../jspf/head.jspf"%>
 <link rel="stylesheet" type="text/css" href="../static/css/main.css">
+<title>${project.name}</title>
 </head>
 <body>
 	<%@ include file="../jspf/navbar.jspf"%>
@@ -35,7 +36,7 @@
 			<form class="form-horizontal" action="/addCollaborator" method="post">
 				<div class="col-sm-10">
 					<input type="text" name="colaborador" class="form-control"
-						id="colaborador" placeholder="Nombre usuario" required="required">
+						id="colaborador" placeholder="Nombre usuario" required="required" maxlength="255">
 					<input type="hidden" name="project" value="${project.id}" /> <input
 						type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 				</div>
@@ -84,7 +85,7 @@
 					<form class="form-horizontal" action="/addTrack" method="post">
 						<div class="col-sm-10">
 							<input type="text" name="track" class="form-control" id="title"
-								placeholder="Titulo" required="required"> <input
+								placeholder="Titulo" required="required" maxlength="255"> <input
 								type="hidden" name="project" value="${project.id}" /> <input
 								type="hidden" name="${_csrf.parameterName}"
 								value="${_csrf.token}" />
@@ -94,24 +95,6 @@
 						</div>
 					</form>
 				</div>
-				<!-- 
-<form class="form-horizontal" action="/addTrack" method="post">
-						<input type="text" name="track" class="form-control" id="title"
-							placeholder="Titulo" required="required"> <input
-							type="hidden" name="project" value="${project.id}" /> <input
-							type="hidden" name="${_csrf.parameterName}"
-							value="${_csrf.token}" />
-						<div class="form-group">
-							<div class="col-sm-12 submitButton">
-								<input type="submit" class="btn btn-success" value="Crear Track">
-							</div>
-						</div>
-					</form>
-
- -->
-
-
-
 			</div>
 		</div>
 	</div>

@@ -24,8 +24,8 @@
 			<sec:authorize access="isAuthenticated()">
 				<ul class="nav navbar-nav">
 					<li><a href="/trendy">Tendencias</a></li>
-					<li><a href="/editor">Editor</a></li>
 					<li><a href="/addProject">Crear Proyecto</a></li>
+					<li><a href="/users">Lista de Usuarios</a></li>
 				</ul>
 				<form class="navbar-form navbar-left" action="/search" method="get">
 					<div class="input-group">

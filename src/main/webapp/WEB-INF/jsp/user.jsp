@@ -8,6 +8,7 @@
 <head>
 <%@ include file="../jspf/head.jspf"%>
 <link rel="stylesheet" type="text/css" href="../static/css/main.css">
+<title>${user.name}</title>
 </head>
 <body>
 	<%@ include file="../jspf/navbar.jspf"%>

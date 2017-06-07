@@ -9,6 +9,7 @@
 <%@ include file="../jspf/head.jspf"%>
 <link rel="stylesheet" type="text/css"
 	href="static/css/session-style.css">
+	<title>Crear Proyecto</title>
 </head>
 <body>
 	<%@ include file="../jspf/navbar.jspf"%>
@@ -24,14 +25,14 @@
 								<div class="col-sm-12">
 									<label class="sr-only" for="title">Titulo</label> <input
 										type="text" name="title" class="form-control" id="title"
-										placeholder="Titulo" required="required">
+										placeholder="Titulo" required="required" maxlength="255">
 								</div>
 							</div>
 							<div class="form-group">
 								<div class="col-sm-12">
 									<label class="sr-only" for="desc">Descripcion</label>
 									<textarea name="desc" class="form-control" required="required"
-										id="desc" placeholder="Description" style="height: 200px;"></textarea>
+										id="desc" placeholder="Description" style="height: 200px;" maxlength="500"></textarea>
 								</div>
 							</div>
 							<input type="hidden" name="${_csrf.parameterName}"

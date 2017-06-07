@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.util.HtmlUtils;
 
 import es.ucm.fdi.iw.model.Proyecto;
 import es.ucm.fdi.iw.model.ProyectoQueries;
@@ -31,11 +32,13 @@ import es.ucm.fdi.iw.model.Track;
 import es.ucm.fdi.iw.model.TrackQueries;
 import es.ucm.fdi.iw.model.User;
 import es.ucm.fdi.iw.model.UserQueries;
+import es.ucm.fdi.iw.util.HtmlEscapeStringEditor;
 
 @Controller
 public class RootController {
 
 	private static final Logger logger = LoggerFactory.getLogger(RootController.class);
+	private static final HtmlEscapeStringEditor sanitizer = new HtmlEscapeStringEditor();
 	
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -95,9 +98,10 @@ public class RootController {
 	}
 
 	@GetMapping("/editor/{t}")
-	public String editor(@PathVariable long t, Model m) {
+	public String editor(@PathVariable long t, Model m, HttpSession s) {
 		m.addAttribute("track", entityManager.find(Track.class, t));
-		m.addAttribute("us", "bb");
+		User u = (User)s.getAttribute("user");
+		m.addAttribute("us", u.getName());
 		return "editor";
 	}
 	
@@ -125,12 +129,13 @@ public class RootController {
 			return "redirect:/home";
 		}	
 		
+		String newName = sanitizer.sanitize(name);
 		User u = new User();
-		u.setName(name);
-		u.setEmail(email);
+		u.setName(newName);
+		u.setEmail(HtmlUtils.htmlEscape(email.trim()));
 		u.setPassword(passwordEncoder.encode(pass));
 		
-		u.setDescription(desc);
+		u.setDescription(sanitizer.sanitize(desc));
 		
 		//u.setBandeja(new ArrayList<>());
 		//u.setProjects(new ArrayList<>());
@@ -138,10 +143,10 @@ public class RootController {
 		//u.setFriends(new ArrayList<>());
 		
 		u.setRoles("USER");
-		logger.info("Nuevo usuario registrado: " + name);
+		logger.info("Nuevo usuario registrado: " + newName);
 		this.entityManager.persist(u);
 		
-		return "redirect:/user/" + name;
+		return "redirect:/user/" + newName;
 		
 	}
 
@@ -150,10 +155,12 @@ public class RootController {
 		return "error";
 	}
 	
+	
 	@GetMapping("/project")
 	public String project(){
 		return "redirect:/";
 	}
+	
 	
 	@GetMapping("/project/{proyecto}")
 	@Transactional
@@ -169,10 +176,12 @@ public class RootController {
 		return "project";
 	}
 	
+	
 	@GetMapping("/addProject")
 	public String addProject(){
 		return "addProject";
 	}
+	
 	
 	/*CAMBIAR EL USER DEL FORMULARIO A LA SESIÓN*/
 	@RequestMapping(value="/addProject", method=RequestMethod.POST)
@@ -187,9 +196,10 @@ public class RootController {
 		User usuario = (User)s.getAttribute("user");
 		usuario = entityManager.find(User.class, usuario.getId());
 		
+		
 		Proyecto proy = new Proyecto();
-		proy.setName(title);
-		proy.setDesc(desc);
+		proy.setName(sanitizer.sanitize(title));
+		proy.setDesc(sanitizer.sanitize(desc));
 		proy.setAuthor(usuario);
 		
 		this.entityManager.persist(proy);
@@ -276,7 +286,7 @@ public class RootController {
 			return "redirect:/project/" + project;
 		}
 		Track nueva = new Track();
-		nueva.setName(track);
+		nueva.setName(sanitizer.sanitize(track));
 		if (p.getAuthor().getId() == u.getId() || p.isCollaborator(u)) {
 			//al autor y los colaboradores se les pone directamente en la lista de tracks activas
 			nueva.setStatus("activa");
@@ -304,6 +314,20 @@ public class RootController {
 		
 
 		return "redirect:/editor/" + nueva.getId();
+	}
+	
+	@RequestMapping(value="/saveTrack", method=RequestMethod.POST)
+	@Transactional
+	public String saveTrack(@RequestParam(required = true) long track,@RequestParam(required = true) String abc/*,
+			@RequestParam(required = true) long project*/,
+			HttpSession s, Model m){
+		
+		//Proyecto p = entityManager.find(Proyecto.class, project);
+		 entityManager.find(Track.class, track).setAbc(HtmlUtils.htmlEscape(abc.trim()));
+		 entityManager.persist(entityManager.find(Track.class, track));
+		Track tracky= entityManager.find(Track.class, track);
+		
+		return "redirect:/editor/" + tracky.getId();
 	}
 	
 	// Ejemplo : Reconocimiento de Usuario

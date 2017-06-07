@@ -6,22 +6,33 @@
 <html>
 <head>
 <%@ include file="../jspf/head.jspf"%>
+<title>Lista de Usuarios</title>
 </head>
 <body>
 	<%@ include file="../jspf/navbar.jspf"%>
-	<div class="container-fluid illust-container">
+	<div class="container illust-container">
 		<div class="row">
+			<div class="col-md-12"
+				style="text-align: center; margin-bottom: 50px;">
+				<h1>Lista de Usuarios</h1>
+			</div>
+
 			<div class="col-sm-12 illust-box">
-				<div style="text-align: center; margin-bottom: 50px;">
-					<h1>Usuarios</h1>
-				</div>
+				<table style="width: 100%; text-align: center;">
+					<tr style="font-size: 28px;">
+						<td>Nombre</td>
+						<td>Descripción</td>
+					</tr>
 
-				<c:forEach items="${lista}" var="c">
-					<div>
-						<h3>${c.name}</h3><br>
-					</div>
-				</c:forEach>
-
+					<c:forEach items="${lista}" var="c">
+						<tr>
+							<td><h2>
+									<a href="/user/${c.name}">${c.name}</a>
+								</h2></td>
+							<td><h4>${c.description}</h4></td>
+						</tr>
+					</c:forEach>
+				</table>
 			</div>
 		</div>
 	</div>

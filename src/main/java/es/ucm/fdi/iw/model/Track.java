@@ -1,6 +1,7 @@
 package es.ucm.fdi.iw.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 
 @Entity
 @NamedQueries({
@@ -10,7 +11,10 @@ public class Track {
 	private long id;
 	private String name;
 	private User creator;
+	
+	@Size(max = 100000)
 	private String abc;
+	
 	private String status;
 	
 	public Track(){}
