@@ -221,7 +221,9 @@ public class RootController {
 	
 	@RequestMapping(value="/acceptTrack",method=RequestMethod.POST)
 	@Transactional
-	public String acceptTrack(@RequestParam(required = true) long track, @RequestParam(required = true) long project, HttpSession s){
+	public String acceptTrack( HttpSession s,
+			@RequestParam long track,
+			@RequestParam long project){
 		Proyecto pro = entityManager.find(Proyecto.class, project);
 		if(pro == null){
 			//proyecto inválido
@@ -230,27 +232,25 @@ public class RootController {
 		}
 		
 		Track tra = entityManager.find(Track.class, track);
-		if(tra == null){
+		if (tra == null){
 			//track inválido
 			
 			return "redirect:/";
 		}
 		
 		//User user = (User)s.getAttribute("user");
-		if(pro.getAuthor().getId() != ((User)s.getAttribute("user")).getId()){
+		if (pro.getAuthor().getId() != ((User)s.getAttribute("user")).getId()){
 			//no puedes aceptar tracks pendientes de un proyecto que no es tuyo
 			
 			return "redirect:/";
 		}
-		if(!pro.getPendingTracks().contains(tra)){
+		if (!pro.getPendingTracks().contains(tra)){
 			//no es una canción que estuviese pendiente de aprobación
 			
 			return "redirect:/";
 		}
 		
-		//la sacamos de pendientes y la agregamos a activas
-		pro.getPendingTracks().remove(tra);
-		pro.getCurrentTracks().add(tra);
+		tra.setStatus(Track.ACTIVE);
 		
 		return "redirect:/" + tra.getName().replace(' ', '_');
 	}
@@ -378,10 +378,10 @@ public class RootController {
 		nueva.setName(sanitizer.sanitize(track));
 		if (p.getAuthor().getId() == u.getId() || p.isCollaborator(u)) {
 			//al autor y los colaboradores se les pone directamente en la lista de tracks activas
-			nueva.setStatus("activa");
+			nueva.setStatus(Track.ACTIVE);
 		} else {
 			// si NO eres el creador ni colaborador
-			nueva.setStatus("pendiente");
+			nueva.setStatus(Track.PENDING);
 		}
 		nueva.setCreator(u);
 		nueva.setProject(p);
@@ -391,16 +391,7 @@ public class RootController {
 		
 		entityManager.flush();
 		logger.info("flush completado; nuevo id es " + nueva.getId());
-
-		if(p.getAuthor().getId() == u.getId() || p.isCollaborator(u)){
-			//al autor y los colaboradores se les pone directamente en la lista de tracks activas
-			logger.info("Track añadido a la lista de activas");
-			p.getCurrentTracks().add(nueva);
-		}else{
-			//a los demás se les mete en la lista de pendientes
-			logger.info("Track añadido a la lista de pendientes");
-			p.getPendingTracks().add(nueva);
-		}
+		p.getTracks().add(nueva);
 		
 
 		return "redirect:/editor/" + nueva.getId();
