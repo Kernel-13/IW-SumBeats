@@ -152,11 +152,6 @@ public class RootController {
 		
 		u.setDescription(sanitizer.sanitize(desc));
 		
-		//u.setBandeja(new ArrayList<>());
-		//u.setProjects(new ArrayList<>());
-		//u.setCollaborations(new ArrayList<>());
-		//u.setFriends(new ArrayList<>());
-		
 		u.setRoles("USER");
 		logger.info("Nuevo usuario registrado: " + newName);
 		this.entityManager.persist(u);
@@ -170,13 +165,11 @@ public class RootController {
 		m.addAttribute("err", error);
 		return "error";
 	}
-	
-	
+		
 	@GetMapping("/project")
 	public String project(){
 		return "redirect:/";
 	}
-	
 	
 	@GetMapping("/project/{proyecto}")
 	//@Transactional
@@ -252,14 +245,13 @@ public class RootController {
 		
 		tra.setStatus(Track.ACTIVE);
 		
-		return "redirect:/" + tra.getName().replace(' ', '_');
+		return "redirect:/project/" + pro.getName().replace(' ', '_');
 	}
 	
 	@GetMapping("/addProject")
 	public String addProject(){
 		return "addProject";
 	}
-	
 	
 	/*CAMBIAR EL USER DEL FORMULARIO A LA SESIÓN*/
 	@RequestMapping(value="/addProject", method=RequestMethod.POST)
