@@ -12,7 +12,10 @@ public class Track {
 	private String name;
 	private User creator;
 	private Proyecto project;
-	
+
+	public static final String ACTIVE = "active";
+	public static final String PENDING = "pending";
+
 	@Size(max = 100000)
 	private String abc;
 	

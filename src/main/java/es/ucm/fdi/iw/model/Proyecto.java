@@ -1,5 +1,6 @@
 package es.ucm.fdi.iw.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.*;
@@ -11,8 +12,7 @@ public class Proyecto {
 	private String desc;
 	private User author;
 	private List<User> collaborators;
-	private List<Track> currentTracks;
-	private List<Track> pendingTracks;
+	private List<Track> tracks;
 	private List<Comentario> comments;
 	private int weekRating;
 	private int globalRating;
@@ -37,14 +37,26 @@ public class Proyecto {
 
 	@OneToMany(targetEntity=Track.class)
 	@JoinColumn(name="proyecto")
-	public List<Track> getCurrentTracks() {
-		return currentTracks;
+	public List<Track> getTracks() {
+		return tracks;
 	}
 
-	@OneToMany(targetEntity=Track.class)
-	@JoinColumn(name="proyecto")
+	@Transient
+	public List<Track> getCurrentTracks() {
+		List<Track> filtered = new ArrayList<Track>();
+		for (Track c : tracks) {
+			if (c.getStatus().equals(Track.ACTIVE)) filtered.add(c);
+		}
+		return filtered;
+	}
+
+	@Transient
 	public List<Track> getPendingTracks() {
-		return pendingTracks;
+		List<Track> filtered = new ArrayList<Track>();
+		for (Track c : tracks) {
+			if (c.getStatus().equals(Track.PENDING)) filtered.add(c);
+		}
+		return filtered;
 	}
 	
 	@OneToMany(targetEntity=Comentario.class)
@@ -97,12 +109,8 @@ public class Proyecto {
 		this.collaborators = collaborators;
 	}
 
-	public void setCurrentTracks(List<Track> currentTracks) {
-		this.currentTracks = currentTracks;
-	}
-
-	public void setPendingTracks(List<Track> pendingTracks) {
-		this.pendingTracks = pendingTracks;
+	public void setTracks(List<Track> tracks) {
+		this.tracks = tracks;
 	}
 
 	public void setComments(List<Comentario> comments) {
