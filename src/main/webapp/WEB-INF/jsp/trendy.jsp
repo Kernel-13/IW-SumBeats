@@ -1,5 +1,6 @@
 <%@ taglib prefix="s" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri = "http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
 
@@ -20,7 +21,7 @@
 					<div class="trendy">
 						<a href="project/${c.name}"><img alt="res1" src="static/img/logPro.png"></a>
 						<div class="search-text">
-							<h3>${c.name}</h3>
+							<h3><a href="project/${fn:replace(c.name,' ','_')}">${c.name}</a></h3>
 							<p>${c.desc}</p>
 						</div>
 					</div>

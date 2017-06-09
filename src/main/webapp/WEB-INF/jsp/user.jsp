@@ -1,7 +1,7 @@
 <%@ taglib prefix="s" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="sec"
-	uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="fn" uri = "http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 
 <html>
@@ -33,7 +33,7 @@
 				<c:forEach items="${lista}" var="c">
 					<div class="col-sm-3">
 						<div class="project-view">
-							<a href="/project/${c.name}"><img alt="pr1"
+							<a href="/project/${fn:replace(c.name,' ','_') }"><img alt="pr1"
 								src="../static/img/logPro.png"></a>
 							<div class="caption">
 								<p>${c.name}</p>

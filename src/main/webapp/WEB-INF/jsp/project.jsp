@@ -33,20 +33,21 @@
 				<h4>Participantes:</h4>
 			</div>
 
-			<form class="form-horizontal" action="/addCollaborator" method="post">
-				<div class="col-sm-10">
-					<input type="text" name="colaborador" class="form-control"
-						id="colaborador" placeholder="Nombre usuario" required="required" maxlength="255">
-					<input type="hidden" name="project" value="${project.id}" /> <input
-						type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-				</div>
+			<c:if test="${project.author.name == us}">
+				<form class="form-horizontal" action="/addCollaborator" method="post">
+					<div class="col-sm-10">
+						<input type="text" name="colaborador" class="form-control"
+							id="colaborador" placeholder="Nombre usuario" required="required" maxlength="255">
+						<input type="hidden" name="project" value="${project.id}" />
+						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+					</div>
+					<div class="col-sm-2 submitButton">
+						<input type="submit" class="btn btn-success form-control" value="Añadir colaborador" />
+					</div>
+				</form>
+			</c:if>
 
-				<div class="col-sm-2 submitButton">
-					<input type="submit" class="btn btn-success form-control"
-						value="Añadir colaborador" />
-				</div>
-
-			</form>
+			
 
 			<div class="col-sm-12 collaborators">
 				<c:forEach items="${project.collaborators}" var="c">
@@ -67,16 +68,15 @@
 				<h4>Recursos:</h4>
 			</div>
 			<div class="col-sm-12">
-
 				<div class="row">
-					<c:forEach items="${project.currentTracks}" var="c">
+					<c:forEach items="${project.currentTracks}" var="t">
 						<div class="row" style="margin: 15px;">
 							<div class="col-md-1">
 								<img alt="Track" class="img-responsive img-circle"
 									style="height: 50px; margin: auto;" src="../static/img/0404-negro.jpg">
 							</div>
 							<div class="col-md-11" style="line-height: 50px; height: 50px;">
-								<a href="../editor/${c.id}" style="color: ghostwhite; font-size: 20px;">${c.name}</a>
+								<a href="../editor/${t.id}" style="color: ghostwhite; font-size: 20px;">${t.name}</a>
 							</div>
 						</div>
 					</c:forEach>

@@ -127,5 +127,10 @@ public class User {
 	public void setBandeja(List<Correo> bandeja) {
 		this.bandeja = bandeja;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return obj!=null && obj.getClass() == this.getClass() && this.id == ((User)obj).id;
+	}
 
 }

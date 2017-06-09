@@ -99,9 +99,24 @@ public class RootController {
 
 	@GetMapping("/editor/{t}")
 	public String editor(@PathVariable long t, Model m, HttpSession s) {
-		m.addAttribute("track", entityManager.find(Track.class, t));
+		Track track = entityManager.find(Track.class, t);
+		if(track == null){
+			//track inexistente
+			
+			return "redirect:/";
+		}
+		
 		User u = (User)s.getAttribute("user");
+		if(track.getCreator().getId() != u.getId()){
+			//no puedes modificar un track que no es tuyo
+			
+			return "redirect:/";
+		}
+			
 		m.addAttribute("us", u.getName());
+		
+		m.addAttribute("track", track);
+		
 		return "editor";
 	}
 	
@@ -151,7 +166,8 @@ public class RootController {
 	}
 
 	@GetMapping("/error")
-	public String error() {
+	public String error(String error, Model m) {
+		m.addAttribute("err", error);
 		return "error";
 	}
 	
@@ -163,8 +179,11 @@ public class RootController {
 	
 	
 	@GetMapping("/project/{proyecto}")
-	@Transactional
-	public String project(@PathVariable String proyecto, Model m) {	
+	//@Transactional
+	public String project(@PathVariable String proyecto, Model m, HttpSession s) {	
+		//para poder tener proyectos con espacios en el nombre
+		proyecto = proyecto.replace('_', ' ');
+		
 		Proyecto pro = ProyectoQueries.findWithName(entityManager,proyecto);
 		if(pro==null){
 			//TRATAMIENTO DE ERRORES
@@ -173,9 +192,68 @@ public class RootController {
 		}
 		
 		m.addAttribute("project", pro);
+		m.addAttribute("us", ((User)s.getAttribute("user")).getName());
 		return "project";
 	}
 	
+	@GetMapping("/project/{proyecto}/pendingTracks")
+	public String pending(@PathVariable String proyecto, Model m, HttpSession s) {	
+		//para poder tener proyectos con espacios en el nombre
+		proyecto = proyecto.replace('_', ' ');
+		
+		Proyecto pro = ProyectoQueries.findWithName(entityManager,proyecto);
+		if(pro==null){
+			//TRATAMIENTO DE ERRORES
+			
+			return "redirect:/";
+		}
+		
+		User u = (User)s.getAttribute("user");
+		if(pro.getAuthor().getId() != u.getId()){
+			//no puedes ver tracks pendientes de un proyecto que no es tuyo
+			
+			return "redirect:/";
+		}
+		
+		m.addAttribute("project", pro);
+		return "pending";
+	}
+	
+	@RequestMapping(value="/acceptTrack",method=RequestMethod.POST)
+	@Transactional
+	public String acceptTrack(@RequestParam(required = true) long track, @RequestParam(required = true) long project, HttpSession s){
+		Proyecto pro = entityManager.find(Proyecto.class, project);
+		if(pro == null){
+			//proyecto inválido
+			
+			return "redirect:/";
+		}
+		
+		Track tra = entityManager.find(Track.class, track);
+		if(tra == null){
+			//track inválido
+			
+			return "redirect:/";
+		}
+		
+		//User user = (User)s.getAttribute("user");
+		if(pro.getAuthor().getId() != ((User)s.getAttribute("user")).getId()){
+			//no puedes aceptar tracks pendientes de un proyecto que no es tuyo
+			
+			return "redirect:/";
+		}
+		if(!pro.getPendingTracks().contains(tra)){
+			//no es una canción que estuviese pendiente de aprobación
+			
+			return "redirect:/";
+		}
+		
+		//la sacamos de pendientes y la agregamos a activas
+		pro.getPendingTracks().remove(tra);
+		pro.getCurrentTracks().add(tra);
+		
+		return "redirect:/" + tra.getName().replace(' ', '_');
+	}
 	
 	@GetMapping("/addProject")
 	public String addProject(){
@@ -186,7 +264,7 @@ public class RootController {
 	/*CAMBIAR EL USER DEL FORMULARIO A LA SESIÓN*/
 	@RequestMapping(value="/addProject", method=RequestMethod.POST)
 	@Transactional
-	public String addProject(@RequestParam(required = true) String title, @RequestParam(required = true) String desc, HttpSession s, Model m){
+	public String addProject(@RequestParam(required = true) String title, @RequestParam(required = true) String desc, HttpSession s){
 		if(! ProyectoQueries.nameAvailable(entityManager, title)){
 			//Si ya hay un proyecto con ese nombre
 			
@@ -212,19 +290,17 @@ public class RootController {
 		
 		//this.entityManager.persist(usuario);
 		
-		return "redirect:/project/" + proy.getName();
-		//return project(proy.getName(),m);
+		//para poder tener proyectos con espacios en el nombre
+		return "redirect:/project/" + proy.getName().replace(' ', '_');
 	}
 	
 	@RequestMapping(value="/addCollaborator", method=RequestMethod.POST)
 	@Transactional
 	public String addCollaborator(@RequestParam(required = true) String colaborador, 
 			@RequestParam(required = true) long project,
-			HttpSession s, Model m){
+			HttpSession s){
 		
-		User colab = UserQueries.findWithName(entityManager, colaborador);
-		// si lo necesitase "fresco": u = entityManager.find(User.class, u.getId());
-		
+		//Primero comprobamos que sea un proyecto real
 		Proyecto p = entityManager.find(Proyecto.class, project);
 		
 		if (p == null){
@@ -232,19 +308,34 @@ public class RootController {
 			logger.info("Nombre de proyecto NO registrado");
 			return "redirect:/";
 		}
-		logger.info("num colaboradores:" + p.getCollaborators().size());
+		
+		//Luego comprobamos que sea un usuario existente
+		User colab = UserQueries.findWithName(entityManager, colaborador);
+		
 		if(colab==null){
 			//NO hay un usuario con ese nombre
 			logger.info("Nombre de usuario NO registrado");
+			return "redirect:/project/" + p.getName().replace(' ', '_');
+		}
+		
+		//También comprobamos que quien ha mandado la petición ha sido el creador del proyecto
+		User creador = (User)s.getAttribute("user");
+		creador = entityManager.find(User.class, creador.getId());
+		
+		if(p.getAuthor().getId() != creador.getId()){
+			//No ha mandado la petición el creador
+			
 			return "redirect:/";
 		}
+		
+		//Por último hay que mirar que no estuviese ya registrado como colaborador
 		if (p.isCollaborator(colab)){
-			//Ese track ya está registrado
-			logger.info("Nombre de track ya registrado");
-			return "redirect:/project/" + p.getName();
+			//Ese colaborador ya está registrado
+			logger.info("Nombre de colaborador ya registrado");
+			return "redirect:/project/" + p.getName().replace(' ', '_');
 		}
 		
-		
+		//Si llegamos aquí es que todo era correcto
 		/*List<User> colabora = new ArrayList<User>();
 		colabora =  p.getCollaborators();
 		colabora.add(colab);
@@ -253,15 +344,13 @@ public class RootController {
 		colab.getCollaborations().add(p);
 		p.getCollaborators().add(colab);
 		
-		entityManager.persist(colab);
-		entityManager.persist(p);
-		
-		// tecnicamente no hace falta modificar también el del usuario ?????
+		//entityManager.persist(colab);
+		//entityManager.persist(p);
 		
 		logger.info("Redirigido. ¿TODO BIEN?");
 		logger.info("num colaboradores:" + p.getCollaborators().size());
-		entityManager.flush();
-		return "redirect:/project/" + p.getName();
+		//entityManager.flush();
+		return "redirect:/project/" + p.getName().replace(' ', '_');
 		
 	}
 	
@@ -269,7 +358,7 @@ public class RootController {
 	@Transactional
 	public String addTrack(@RequestParam(required = true) String track, 
 			@RequestParam(required = true) long project,
-			HttpSession s, Model m){
+			HttpSession s){
 
 		User u = (User)s.getAttribute("user");
 		// si lo necesitase "fresco": u = entityManager.find(User.class, u.getId());
@@ -283,7 +372,7 @@ public class RootController {
 		if (TrackQueries.countWithName(entityManager, track) > 0){
 			//Ese track ya está registrado
 			logger.info("Nombre de track ya registrado");
-			return "redirect:/project/" + project;
+			return "redirect:/project/" + p.getName().replace(' ', '_');
 		}
 		Track nueva = new Track();
 		nueva.setName(sanitizer.sanitize(track));
@@ -295,20 +384,21 @@ public class RootController {
 			nueva.setStatus("pendiente");
 		}
 		nueva.setCreator(u);
+		nueva.setProject(p);
 		entityManager.persist(nueva);
 
-		// tecnicamente no hace falta modificar también el del usuario ?????
+		// tecnicamente no hace falta modificar también el del usuario
 		
-		logger.info("Redirigido. ¿TODO BIEN?");
-		//return "redirect:/editor/" + nueva.getId();
 		entityManager.flush();
 		logger.info("flush completado; nuevo id es " + nueva.getId());
 
 		if(p.getAuthor().getId() == u.getId() || p.isCollaborator(u)){
 			//al autor y los colaboradores se les pone directamente en la lista de tracks activas
+			logger.info("Track añadido a la lista de activas");
 			p.getCurrentTracks().add(nueva);
 		}else{
 			//a los demás se les mete en la lista de pendientes
+			logger.info("Track añadido a la lista de pendientes");
 			p.getPendingTracks().add(nueva);
 		}
 		
@@ -318,25 +408,39 @@ public class RootController {
 	
 	@RequestMapping(value="/saveTrack", method=RequestMethod.POST)
 	@Transactional
-	public String saveTrack(@RequestParam(required = true) long track,@RequestParam(required = true) String abc/*,
+	public String saveTrack(@RequestParam(required = true) long track, @RequestParam(required = true) String abc/*,
 			@RequestParam(required = true) long project*/,
-			HttpSession s, Model m){
+			HttpSession s){
 		
-		//Proyecto p = entityManager.find(Proyecto.class, project);
-		 entityManager.find(Track.class, track).setAbc(HtmlUtils.htmlEscape(abc.trim()));
-		 entityManager.persist(entityManager.find(Track.class, track));
-		Track tracky= entityManager.find(Track.class, track);
+		Track t = entityManager.find(Track.class, track);
+		if(t == null){
+			//track inexistente
+			
+			return "redirect:/";
+		}
 		
-		return "redirect:/editor/" + tracky.getId();
+		User u = (User)s.getAttribute("user");
+		if(t.getCreator().getId() != u.getId()){
+			//no puedes modificar un track que no es tuyo
+			
+			return "redirect:/";
+		}
+		
+		t.setAbc(HtmlUtils.htmlEscape(abc.trim()));
+		
+		//se supone que al ser una copia viva se encarga el entity manager de guardarla actualizada
+		//entityManager.persist(entityManager.find(Track.class, track));
+
+		return "redirect:/project/" + t.getProject().getName().replace(' ', '_');
 	}
 	
 	// Ejemplo : Reconocimiento de Usuario
 
-	@GetMapping("/login/{role}")
+	/*@GetMapping("/login/{role}")
 	public String login(@PathVariable String role, HttpSession s) {
 		s.setAttribute("role", role);
 		return "login";
-	}
+	}*/
 
 	@GetMapping("/login")
 	public String login() {

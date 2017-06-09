@@ -11,6 +11,7 @@ public class Track {
 	private long id;
 	private String name;
 	private User creator;
+	private Proyecto project;
 	
 	@Size(max = 100000)
 	private String abc;
@@ -38,6 +39,11 @@ public class Track {
 		return creator;
 	}
 
+	@ManyToOne(targetEntity=Proyecto.class)
+	public Proyecto getProject() {
+		return project;
+	}
+	
 	public String getAbc() {
 		return abc;
 	}
@@ -60,5 +66,10 @@ public class Track {
 
 	public void setCreator(User creator) {
 		this.creator = creator;
+	}
+
+
+	public void setProject(Proyecto project) {
+		this.project = project;
 	}
 }

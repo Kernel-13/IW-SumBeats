@@ -27,16 +27,15 @@
 				<form class="form-horizontal" action="/saveTrack" method="post">
 					<textarea class="text-editor form-control" id="abc3" style="width: 100%"
 						name="abc" rows="20">${track.abc}</textarea>
-	
-					<input type="hidden" name="track" value="${track.id}" /> <input
-						type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+					<input type="hidden" name="track" value="${track.id}" /> 
 					<c:if test="${track.creator.name == us}">
+						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 						<div id="cambio" style="padding: 20px; text-align: center;">
-							<input type="submit" class="btn btn-success"
-								value="Guardar cambios">
+							<input type="submit" class="btn btn-success" value="Guardar cambios">
 						</div>
 					</c:if>
 				</form>
+				
 			</div>
 
 			<div class="col-sm-7" style="padding-top: 40px;">
