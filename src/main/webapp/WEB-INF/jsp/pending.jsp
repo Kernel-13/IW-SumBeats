@@ -42,18 +42,14 @@
 				<div class="row">
 					<c:forEach items="${project.pendingTracks}" var="t">
 						<div class="row" style="margin: 15px;">
-							<div class="col-lx-1 col-md-1 col-sm-1 col-xs-1"
-								style="height: 50px; padding: 0;">
-								<img alt="Track" class="img-responsive img-circle"
-									style="max-height: 50px; margin: auto;"
+							<div class="col-lx-1 col-md-1 col-sm-1 col-xs-1" style="height: 50px; padding: 0;">
+								<img alt="Track" class="img-responsive img-circle" style="max-height: 50px; margin: auto;"
 									src="../../static/img/0404-negro.jpg">
 							</div>
 							<div class="col-lx-6 col-md-6 col-sm-6 col-xs-6"
 								style="line-height: 50px; height: 50px; overflow: hidden;">
-								<a href="../editor/${t.id}"
-									style="color: ghostwhite; font-size: 22px;">"${t.name}"</a> <a
-									href="../user/${t.creator.name}"
-									style="color: gray; font-size: 16px;">by ${t.creator.name}</a>
+								<a href="/editor/${t.id}" style="color: ghostwhite; font-size: 22px;">"${t.name}"</a> 
+								<a href="/user/${t.creator.name}" style="color: gray; font-size: 16px;">by ${t.creator.name}</a>
 							</div>
 							<div class="col-lx-3 col-md-3 col-sm-3 col-xs-3"
 								style="line-height: 50px; height: 50px;">
@@ -68,11 +64,10 @@
 							</div>
 							<form action="/acceptTrack" method="post">
 								<div class="col-lx-2 col-md-2 col-sm-2 col-xs-2">
-									<input type="hidden" name="track" value="${t.id}"> <input
-										type="hidden" name="project" value="${project.id}" /> <input
-										type="hidden" name="${_csrf.parameterName}"
-										value="${_csrf.token}" /> <input type="submit"
-										class="btn btn-success form-control" value="Aceptar Track">
+									<input type="hidden" name="track" value="${t.id}"> 
+									<input type="hidden" name="project" value="${project.id}" /> 
+									<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" /> 
+									<input type="submit" class="btn btn-success form-control" value="Aceptar Track">
 								</div>
 							</form>
 						</div>

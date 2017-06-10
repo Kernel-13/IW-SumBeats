@@ -153,7 +153,7 @@ public class RootController {
 		logger.info("Nuevo usuario registrado: " + newName);
 		this.entityManager.persist(u);
 		
-		return "redirect:/user/" + newName;
+		return "redirect:/";
 		
 	}
 
@@ -388,8 +388,8 @@ public class RootController {
 	
 	@RequestMapping(value="/saveTrack", method=RequestMethod.POST)
 	@Transactional
-	public String saveTrack(@RequestParam(required = true) long track, @RequestParam(required = true) String abc/*,
-			@RequestParam(required = true) long project*/,
+	public String saveTrack(@RequestParam(required = true) long track, 
+			@RequestParam(required = true) String abc,
 			HttpSession s){
 		
 		Track t = entityManager.find(Track.class, track);
@@ -400,7 +400,7 @@ public class RootController {
 		}
 		
 		User u = (User)s.getAttribute("user");
-		if(t.getCreator().getId() != u.getId()){
+		if(t.getCreator().getId() != u.getId() && t.getProject().getAuthor().getId() != u.getId()){
 			//no puedes modificar un track que no es tuyo
 			
 			return "redirect:/";
@@ -408,10 +408,13 @@ public class RootController {
 		
 		t.setAbc(HtmlUtils.htmlEscape(abc.trim()));
 		
-		//se supone que al ser una copia viva se encarga el entity manager de guardarla actualizada
-		//entityManager.persist(entityManager.find(Track.class, track));
-
-		return "redirect:/project/" + t.getProject().getName().replace(' ', '_');
+		if (t.getStatus() == Track.ACTIVE){
+			return "redirect:/project/" + t.getProject().getName().replace(' ', '_');
+		} else if (t.getStatus() == Track.PENDING && t.getProject().getAuthor().getId() == u.getId()){
+			return "redirect:/project/" + t.getProject().getName().replace(' ', '_') + "/pendingTracks";
+		} else {
+			return "redirect:/project/" + t.getProject().getName().replace(' ', '_');
+		}
 	}
 	
 	// Ejemplo : Reconocimiento de Usuario

@@ -28,7 +28,7 @@
 					<textarea class="text-editor form-control" id="abc3" style="width: 100%"
 						name="abc" rows="20">${track.abc}</textarea>
 					<input type="hidden" name="track" value="${track.id}" /> 
-					<c:if test="${(track.creator.name == us) || (track.project.author == us)}">
+					<c:if test="${(track.creator.name == us) or (track.project.author.name == us)}">
 						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 						<div id="cambio" style="padding: 20px; text-align: center;">
 							<input type="submit" class="btn btn-success" value="Guardar cambios">
