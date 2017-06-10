@@ -406,7 +406,8 @@ public class RootController {
 			return "redirect:/";
 		}
 		
-		t.setAbc(HtmlUtils.htmlEscape(abc.trim()));
+		//t.setAbc(HtmlUtils.htmlEscape(abc.trim()));
+		t.setAbc(sanitizer.sanitize(abc));
 		
 		if (t.getStatus() == Track.ACTIVE){
 			return "redirect:/project/" + t.getProject().getName().replace(' ', '_');
