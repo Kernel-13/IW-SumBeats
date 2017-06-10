@@ -4,12 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 
 @Entity
 public class Proyecto {
 	private long id;
 	private String name;
+	
+	@Size(max = 500)
 	private String desc;
+	
 	private User author;
 	private List<User> collaborators;
 	private List<Track> tracks;

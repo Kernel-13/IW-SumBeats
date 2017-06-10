@@ -100,21 +100,18 @@ public class RootController {
 	@GetMapping("/editor/{t}")
 	public String editor(@PathVariable long t, Model m, HttpSession s) {
 		Track track = entityManager.find(Track.class, t);
-		if(track == null){
+		if (track == null){
 			//track inexistente
-			
 			return "redirect:/";
 		}
 		
 		User u = (User)s.getAttribute("user");
-		if(track.getCreator().getId() != u.getId()){
+		if (track.getCreator().getId() != u.getId() && u.getId() != track.getProject().getAuthor().getId()){
 			//no puedes modificar un track que no es tuyo
-			
 			return "redirect:/";
 		}
 			
 		m.addAttribute("us", u.getName());
-		
 		m.addAttribute("track", track);
 		
 		return "editor";
