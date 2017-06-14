@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.HtmlUtils;
 
+import es.ucm.fdi.iw.model.Comentario;
 import es.ucm.fdi.iw.model.Proyecto;
 import es.ucm.fdi.iw.model.ProyectoQueries;
 import es.ucm.fdi.iw.model.Track;
@@ -39,7 +40,7 @@ public class RootController {
 
 	private static final Logger logger = LoggerFactory.getLogger(RootController.class);
 	private static final HtmlEscapeStringEditor sanitizer = new HtmlEscapeStringEditor();
-	
+
 	@PersistenceContext
 	private EntityManager entityManager;
 
@@ -48,38 +49,36 @@ public class RootController {
 
 	@GetMapping({ "/", "/index" })
 	public String root(HttpSession s, Principal p) {
-		s.setAttribute("user", entityManager.createQuery(
-				"from User where name = :name", User.class).setParameter(
-						"name", p.getName()).getSingleResult());
+		s.setAttribute("user", entityManager.createQuery("from User where name = :name", User.class)
+				.setParameter("name", p.getName()).getSingleResult());
 		return "home";
 	}
 
 	@GetMapping({ "/user/{name}", "/profile/{name}" })
-	public String showUsuario(@PathVariable String name, Model m) {	
-		if(!UserQueries.nameAvailable(entityManager, name)){
+	public String showUsuario(@PathVariable String name, Model m) {
+		if (!UserQueries.nameAvailable(entityManager, name)) {
 			User u = UserQueries.findWithName(entityManager, name);
-			List<Proyecto> lista  = u.getProjects();
+			List<Proyecto> lista = u.getProjects();
 
 			m.addAttribute("user", u);
-			m.addAttribute("lista",lista);
-			
+			m.addAttribute("lista", lista);
+
 			return "user";
 		} else {
 			return "redirect:/home";
 		}
-		
+
 	}
 
-	/*@GetMapping("/search")
-	public String search(Model m) {
-		List<Proyecto> lista = ProyectoQueries.getProjectSearch(entityManager,"e");
-		m.addAttribute("lista", lista);
-		return "search";
-	}*/
-	
+	/*
+	 * @GetMapping("/search") public String search(Model m) { List<Proyecto>
+	 * lista = ProyectoQueries.getProjectSearch(entityManager,"e");
+	 * m.addAttribute("lista", lista); return "search"; }
+	 */
+
 	@RequestMapping(value = "/search")
-	public String search(@RequestParam("busqueda") String busqueda, Model m){
-		List<Proyecto> lista = ProyectoQueries.getProjectSearch(entityManager,busqueda);
+	public String search(@RequestParam("busqueda") String busqueda, Model m) {
+		List<Proyecto> lista = ProyectoQueries.getProjectSearch(entityManager, busqueda);
 		m.addAttribute("lista", lista);
 		return "search";
 	}
@@ -100,23 +99,23 @@ public class RootController {
 	@GetMapping("/editor/{t}")
 	public String editor(@PathVariable long t, Model m, HttpSession s) {
 		Track track = entityManager.find(Track.class, t);
-		if (track == null){
-			//track inexistente
+		if (track == null) {
+			// track inexistente
 			return "redirect:/";
 		}
-		
-		User u = (User)s.getAttribute("user");
-		if (track.getCreator().getId() != u.getId() && u.getId() != track.getProject().getAuthor().getId()){
-			//no puedes modificar un track que no es tuyo
+
+		User u = (User) s.getAttribute("user");
+		if (track.getCreator().getId() != u.getId() && u.getId() != track.getProject().getAuthor().getId()) {
+			// no puedes modificar un track que no es tuyo
 			return "redirect:/";
 		}
-			
+
 		m.addAttribute("us", u.getName());
 		m.addAttribute("track", track);
-		
+
 		return "editor";
 	}
-	
+
 	@GetMapping("/users")
 	public String users(Model m) {
 		List<User> lista = UserQueries.allUsers(entityManager);
@@ -124,37 +123,35 @@ public class RootController {
 		logger.info("Nº Usuarios Controller: " + lista.size());
 		return "users";
 	}
-	
+
 	@GetMapping("/addUser")
 	public String addUser() {
 		return "addUser";
 	}
-	
+
 	@RequestMapping(value = "/addUser", method = RequestMethod.POST)
 	@Transactional
-	public String addUser(@RequestParam(required = true) String name, 
-			@RequestParam(required = true) String email,
-			@RequestParam(required = true) String pass, 
-			@RequestParam(required = true) String desc) {
-		
-		if(!UserQueries.nameAvailable(entityManager,name) || !UserQueries.emailAvailable(entityManager,email)){
+	public String addUser(@RequestParam(required = true) String name, @RequestParam(required = true) String email,
+			@RequestParam(required = true) String pass, @RequestParam(required = true) String desc) {
+
+		if (!UserQueries.nameAvailable(entityManager, name) || !UserQueries.emailAvailable(entityManager, email)) {
 			return "redirect:/home";
-		}	
-		
+		}
+
 		String newName = sanitizer.sanitize(name);
 		User u = new User();
 		u.setName(newName);
 		u.setEmail(HtmlUtils.htmlEscape(email.trim()));
 		u.setPassword(passwordEncoder.encode(pass));
-		
+
 		u.setDescription(sanitizer.sanitize(desc));
-		
+
 		u.setRoles("USER");
 		logger.info("Nuevo usuario registrado: " + newName);
 		this.entityManager.persist(u);
-		
+
 		return "redirect:/";
-		
+
 	}
 
 	@GetMapping("/error")
@@ -162,211 +159,211 @@ public class RootController {
 		m.addAttribute("err", error);
 		return "error";
 	}
-		
+
 	@GetMapping("/project")
-	public String project(){
+	public String project() {
 		return "redirect:/";
 	}
-	
+
 	@GetMapping("/project/{proyecto}")
-	//@Transactional
-	public String project(@PathVariable String proyecto, Model m, HttpSession s) {	
-		//para poder tener proyectos con espacios en el nombre
+	// @Transactional
+	public String project(@PathVariable String proyecto, Model m, HttpSession s) {
+		// para poder tener proyectos con espacios en el nombre
 		proyecto = proyecto.replace('_', ' ');
-		
-		Proyecto pro = ProyectoQueries.findWithName(entityManager,proyecto);
-		if(pro==null){
-			//TRATAMIENTO DE ERRORES
-			
+
+		Proyecto pro = ProyectoQueries.findWithName(entityManager, proyecto);
+		if (pro == null) {
+			// TRATAMIENTO DE ERRORES
+
 			return "redirect:/";
 		}
-		
+
 		m.addAttribute("project", pro);
-		m.addAttribute("us", ((User)s.getAttribute("user")).getName());
+		m.addAttribute("us", ((User) s.getAttribute("user")).getName());
 		return "project";
 	}
-	
+
 	@GetMapping("/project/{proyecto}/pendingTracks")
-	public String pending(@PathVariable String proyecto, Model m, HttpSession s) {	
-		//para poder tener proyectos con espacios en el nombre
+	public String pending(@PathVariable String proyecto, Model m, HttpSession s) {
+		// para poder tener proyectos con espacios en el nombre
 		proyecto = proyecto.replace('_', ' ');
-		
-		Proyecto pro = ProyectoQueries.findWithName(entityManager,proyecto);
-		if(pro==null){
-			//TRATAMIENTO DE ERRORES
-			
+
+		Proyecto pro = ProyectoQueries.findWithName(entityManager, proyecto);
+		if (pro == null) {
+			// TRATAMIENTO DE ERRORES
+
 			return "redirect:/";
 		}
-		
-		User u = (User)s.getAttribute("user");
-		if(pro.getAuthor().getId() != u.getId()){
-			//no puedes ver tracks pendientes de un proyecto que no es tuyo
-			
+
+		User u = (User) s.getAttribute("user");
+		if (pro.getAuthor().getId() != u.getId()) {
+			// no puedes ver tracks pendientes de un proyecto que no es tuyo
+
 			return "redirect:/";
 		}
-		
+
 		m.addAttribute("project", pro);
 		return "pending";
 	}
-	
-	@RequestMapping(value="/acceptTrack",method=RequestMethod.POST)
+
+	@RequestMapping(value = "/acceptTrack", method = RequestMethod.POST)
 	@Transactional
-	public String acceptTrack( HttpSession s,
-			@RequestParam long track,
-			@RequestParam long project){
+	public String acceptTrack(HttpSession s, @RequestParam long track, @RequestParam long project) {
 		Proyecto pro = entityManager.find(Proyecto.class, project);
-		if(pro == null){
-			//proyecto inválido
-			
+		if (pro == null) {
+			// proyecto inválido
+
 			return "redirect:/";
 		}
-		
+
 		Track tra = entityManager.find(Track.class, track);
-		if (tra == null){
-			//track inválido
-			
+		if (tra == null) {
+			// track inválido
+
 			return "redirect:/";
 		}
-		
-		//User user = (User)s.getAttribute("user");
-		if (pro.getAuthor().getId() != ((User)s.getAttribute("user")).getId()){
-			//no puedes aceptar tracks pendientes de un proyecto que no es tuyo
-			
+
+		// User user = (User)s.getAttribute("user");
+		if (pro.getAuthor().getId() != ((User) s.getAttribute("user")).getId()) {
+			// no puedes aceptar tracks pendientes de un proyecto que no es tuyo
+
 			return "redirect:/";
 		}
-		if (!pro.getPendingTracks().contains(tra)){
-			//no es una canción que estuviese pendiente de aprobación
-			
+		if (!pro.getPendingTracks().contains(tra)) {
+			// no es una canción que estuviese pendiente de aprobación
+
 			return "redirect:/";
 		}
-		
+
 		tra.setStatus(Track.ACTIVE);
-		
+
 		return "redirect:/project/" + pro.getName().replace(' ', '_');
 	}
-	
+
 	@GetMapping("/addProject")
-	public String addProject(){
+	public String addProject() {
 		return "addProject";
 	}
-	
-	/*CAMBIAR EL USER DEL FORMULARIO A LA SESIÓN*/
-	@RequestMapping(value="/addProject", method=RequestMethod.POST)
+
+	/* CAMBIAR EL USER DEL FORMULARIO A LA SESIÓN */
+	@RequestMapping(value = "/addProject", method = RequestMethod.POST)
 	@Transactional
-	public String addProject(@RequestParam(required = true) String title, @RequestParam(required = true) String desc, HttpSession s){
-		if(! ProyectoQueries.nameAvailable(entityManager, title)){
-			//Si ya hay un proyecto con ese nombre
-			
+	public String addProject(@RequestParam(required = true) String title, @RequestParam(required = true) String desc,
+			HttpSession s) {
+		if (!ProyectoQueries.nameAvailable(entityManager, title)) {
+			// Si ya hay un proyecto con ese nombre
+
 			return "addProject";
 		}
-		//User usuario = UserQueries.findWithName(entityManager, user);
-		User usuario = (User)s.getAttribute("user");
+		// User usuario = UserQueries.findWithName(entityManager, user);
+		User usuario = (User) s.getAttribute("user");
 		usuario = entityManager.find(User.class, usuario.getId());
-		
-		
+
 		Proyecto proy = new Proyecto();
 		proy.setName(sanitizer.sanitize(title));
 		proy.setDesc(sanitizer.sanitize(desc));
 		proy.setAuthor(usuario);
-		
+
 		this.entityManager.persist(proy);
 		logger.info("Proyecto agregado a la BD. Nombre de proyecto: " + title + ". Autor: " + usuario.getName());
-		
-		//List<Proyecto> proyectos = usuario.getProjects();
-		//proyectos.add(proy);
-		//usuario.setProjects(proyectos);
+
+		// List<Proyecto> proyectos = usuario.getProjects();
+		// proyectos.add(proy);
+		// usuario.setProjects(proyectos);
 		usuario.getProjects().add(proy);
-		
-		//this.entityManager.persist(usuario);
-		
-		//para poder tener proyectos con espacios en el nombre
+
+		// this.entityManager.persist(usuario);
+
+		// para poder tener proyectos con espacios en el nombre
 		return "redirect:/project/" + proy.getName().replace(' ', '_');
 	}
-	
-	@RequestMapping(value="/addCollaborator", method=RequestMethod.POST)
+
+	@RequestMapping(value = "/addCollaborator", method = RequestMethod.POST)
 	@Transactional
-	public String addCollaborator(@RequestParam(required = true) String colaborador, 
-			@RequestParam(required = true) long project,
-			HttpSession s){
-		
-		//Primero comprobamos que sea un proyecto real
+	public String addCollaborator(@RequestParam(required = true) String colaborador,
+			@RequestParam(required = true) long project, HttpSession s) {
+
+		// Primero comprobamos que sea un proyecto real
 		Proyecto p = entityManager.find(Proyecto.class, project);
-		
-		if (p == null){
-			//NO hay un proyecto con ese nombre
+
+		if (p == null) {
+			// NO hay un proyecto con ese nombre
 			logger.info("Nombre de proyecto NO registrado");
 			return "redirect:/";
 		}
-		
-		//Luego comprobamos que sea un usuario existente
+
+		// Luego comprobamos que sea un usuario existente
 		User colab = UserQueries.findWithName(entityManager, colaborador);
-		
-		if(colab==null){
-			//NO hay un usuario con ese nombre
+
+		if (colab == null) {
+			// NO hay un usuario con ese nombre
 			logger.info("Nombre de usuario NO registrado");
 			return "redirect:/project/" + p.getName().replace(' ', '_');
 		}
-		
-		//También comprobamos que quien ha mandado la petición ha sido el creador del proyecto
-		User creador = (User)s.getAttribute("user");
+
+		// También comprobamos que quien ha mandado la petición ha sido el
+		// creador del proyecto
+		User creador = (User) s.getAttribute("user");
 		creador = entityManager.find(User.class, creador.getId());
-		
-		if(p.getAuthor().getId() != creador.getId()){
-			//No ha mandado la petición el creador
-			
+
+		if (p.getAuthor().getId() != creador.getId()) {
+			// No ha mandado la petición el creador
+
 			return "redirect:/";
 		}
-		
-		//Por último hay que mirar que no estuviese ya registrado como colaborador
-		if (p.isCollaborator(colab)){
-			//Ese colaborador ya está registrado
+
+		// Por último hay que mirar que no estuviese ya registrado como
+		// colaborador
+		if (p.isCollaborator(colab)) {
+			// Ese colaborador ya está registrado
 			logger.info("Nombre de colaborador ya registrado");
 			return "redirect:/project/" + p.getName().replace(' ', '_');
 		}
-		
-		//Si llegamos aquí es que todo era correcto
-		/*List<User> colabora = new ArrayList<User>();
-		colabora =  p.getCollaborators();
-		colabora.add(colab);
-		p.setCollaborators(colabora);*/
-		
+
+		// Si llegamos aquí es que todo era correcto
+		/*
+		 * List<User> colabora = new ArrayList<User>(); colabora =
+		 * p.getCollaborators(); colabora.add(colab);
+		 * p.setCollaborators(colabora);
+		 */
+
 		colab.getCollaborations().add(p);
 		p.getCollaborators().add(colab);
-		
-		//entityManager.persist(colab);
-		//entityManager.persist(p);
-		
+
+		// entityManager.persist(colab);
+		// entityManager.persist(p);
+
 		logger.info("Redirigido. ¿TODO BIEN?");
 		logger.info("num colaboradores:" + p.getCollaborators().size());
-		//entityManager.flush();
+		// entityManager.flush();
 		return "redirect:/project/" + p.getName().replace(' ', '_');
-		
-	}
-	
-	@RequestMapping(value="/addTrack", method=RequestMethod.POST)
-	@Transactional
-	public String addTrack(@RequestParam(required = true) String track, 
-			@RequestParam(required = true) long project,
-			HttpSession s){
 
-		User u = (User)s.getAttribute("user");
+	}
+
+	@RequestMapping(value = "/addTrack", method = RequestMethod.POST)
+	@Transactional
+	public String addTrack(@RequestParam(required = true) String track, @RequestParam(required = true) long project,
+			HttpSession s) {
+
+		User u = (User) s.getAttribute("user");
 		u = entityManager.find(User.class, u.getId());
 
 		Proyecto p = entityManager.find(Proyecto.class, project);
-		if (p == null){
-			//NO hay un proyecto con ese nombre
+		if (p == null) {
+			// NO hay un proyecto con ese nombre
 			logger.info("Nombre de proyecto NO registrado");
 			return "redirect:/";
 		}
-		if (TrackQueries.countWithName(entityManager, track) > 0){
-			//Ese track ya está registrado
+		if (TrackQueries.countWithName(entityManager, track) > 0) {
+			// Ese track ya está registrado
 			logger.info("Nombre de track ya registrado");
 			return "redirect:/project/" + p.getName().replace(' ', '_');
 		}
 		Track nueva = new Track();
 		nueva.setName(sanitizer.sanitize(track));
 		if (p.getAuthor().getId() == u.getId() || p.isCollaborator(u)) {
-			//al autor y los colaboradores se les pone directamente en la lista de tracks activas
+			// al autor y los colaboradores se les pone directamente en la lista
+			// de tracks activas
 			nueva.setStatus(Track.ACTIVE);
 		} else {
 			// si NO eres el creador ni colaborador
@@ -377,7 +374,7 @@ public class RootController {
 		entityManager.persist(nueva);
 
 		// tecnicamente no hace falta modificar también el del usuario
-		
+
 		entityManager.flush();
 		logger.info("flush completado; nuevo id es " + nueva.getId());
 		p.getTracks().add(nueva);
@@ -385,179 +382,180 @@ public class RootController {
 
 		return "redirect:/editor/" + nueva.getId();
 	}
-	
-	@RequestMapping(value="/saveTrack", method=RequestMethod.POST)
+
+	@RequestMapping(value = "/saveTrack", method = RequestMethod.POST)
 	@Transactional
-	public String saveTrack(@RequestParam(required = true) long track, 
-			@RequestParam(required = true) String abc,
-			HttpSession s){
-		
+	public String saveTrack(@RequestParam(required = true) long track, @RequestParam(required = true) String abc,
+			HttpSession s) {
+
 		Track t = entityManager.find(Track.class, track);
-		if(t == null){
-			//track inexistente
-			
+		if (t == null) {
+			// track inexistente
+
 			return "redirect:/";
 		}
-		
-		User u = (User)s.getAttribute("user");
-		if(t.getCreator().getId() != u.getId() && t.getProject().getAuthor().getId() != u.getId()){
-			//no puedes modificar un track que no es tuyo
-			
+
+		User u = (User) s.getAttribute("user");
+		if (t.getCreator().getId() != u.getId() && t.getProject().getAuthor().getId() != u.getId()) {
+			// no puedes modificar un track que no es tuyo
+
 			return "redirect:/";
 		}
-		
-		//t.setAbc(HtmlUtils.htmlEscape(abc.trim()));
+
+		// t.setAbc(HtmlUtils.htmlEscape(abc.trim()));
 		t.setAbc(sanitizer.sanitize(abc));
-		
-		if (t.getStatus() == Track.ACTIVE){
+
+		if (t.getStatus() == Track.ACTIVE) {
 			return "redirect:/project/" + t.getProject().getName().replace(' ', '_');
-		} else if (t.getStatus() == Track.PENDING && t.getProject().getAuthor().getId() == u.getId()){
+		} else if (t.getStatus() == Track.PENDING && t.getProject().getAuthor().getId() == u.getId()) {
 			return "redirect:/project/" + t.getProject().getName().replace(' ', '_') + "/pendingTracks";
 		} else {
 			return "redirect:/project/" + t.getProject().getName().replace(' ', '_');
 		}
 	}
-	
-	@RequestMapping(value="/deleteTrack", method=RequestMethod.POST)
+
+	@RequestMapping(value = "/deleteTrack", method = RequestMethod.POST)
 	@Transactional
-	public String deleteTrack(@RequestParam long track,
-			HttpSession s){
-		
+	public String deleteTrack(@RequestParam long track, HttpSession s) {
+
 		Track t = entityManager.find(Track.class, track);
-		if(t == null){
+		if (t == null) {
 			logger.info("No Borrado - No existe el track");
-			return "redirect:/"; 	// Track Inexistente
+			return "redirect:/"; // Track Inexistente
 		}
-		
-		Proyecto p = entityManager.find(Proyecto.class, t.getProject().getId());	// "Fresh"
-		
-		User u = (User)s.getAttribute("user");
-		if (t.getCreator().getId() != u.getId() && t.getProject().getAuthor().getId() != u.getId()){
+
+		Proyecto p = entityManager.find(Proyecto.class, t.getProject().getId()); // "Fresh"
+
+		User u = (User) s.getAttribute("user");
+		if (t.getCreator().getId() != u.getId() && t.getProject().getAuthor().getId() != u.getId()) {
 			logger.info("No Borrado - No eres el autor del Track / Proyecto");
-			return "redirect:/";	// Can't delete a Track if it is not yours
+			return "redirect:/"; // Can't delete a Track if it is not yours
 		}
 		u = entityManager.find(User.class, u.getId());
 		u.getTracks().remove(t);
 		p.getTracks().remove(t);
 		entityManager.remove(t);
 		logger.info("Track Borrado - RootController");
-		
+
 		return "redirect:/project/" + p.getName().replace(' ', '_');
 	}
-	
-	@RequestMapping(value="/deleteCollaborator", method=RequestMethod.POST)
+
+	@RequestMapping(value = "/deleteCollaborator", method = RequestMethod.POST)
 	@Transactional
-	public String deleteCollaborator(@RequestParam long pro,
-			@RequestParam long user,
-			HttpSession s){
-		
+	public String deleteCollaborator(@RequestParam long pro, @RequestParam long user, HttpSession s) {
+
 		Proyecto p = entityManager.find(Proyecto.class, pro);
-		if(p == null){
+		if (p == null) {
 			logger.info("No Borrado - No existe el Proyecto");
 			return "redirect:/";
 		}
-		
-		User u = (User)s.getAttribute("user");
-		if (p.getAuthor().getId() != u.getId()){
+
+		User u = (User) s.getAttribute("user");
+		if (p.getAuthor().getId() != u.getId()) {
 			logger.info("No Borrado - No eres el autor del Proyecto");
 			return "redirect:/";
 		}
-		
+
 		User uc = entityManager.find(User.class, user);
-		if(!p.getCollaborators().contains(uc)){
+		if (!p.getCollaborators().contains(uc)) {
 			logger.info("No Borrado - No existe el colaborador en el proyecto");
 			return "redirect:/";
 		}
-		
+
 		p.getCollaborators().remove(uc);
 		uc.getCollaborations().remove(p);
 		logger.info("Colaborador Borrado - RootController");
-		
+
 		return "redirect:/project/" + p.getName().replace(' ', '_');
 	}
-	
-	@RequestMapping(value="/deleteProject", method=RequestMethod.POST)
+
+	@RequestMapping(value = "/deleteProject", method = RequestMethod.POST)
 	@Transactional
-	public String deleteProject(@RequestParam long proyecto,
-			HttpSession s){
-		
+	public String deleteProject(@RequestParam long proyecto, HttpSession s) {
+
 		Proyecto p = entityManager.find(Proyecto.class, proyecto);
-		if(p == null){
+		if (p == null) {
 			logger.info("No Borrado - No existe el Proyecto");
 			return "redirect:/";
 		}
-		
-		User u = (User)s.getAttribute("user");
+
+		User u = (User) s.getAttribute("user");
 		u = entityManager.find(User.class, u.getId());
-		
-		if(p.getAuthor().getId() != u.getId()){
+
+		if (p.getAuthor().getId() != u.getId()) {
 			logger.info("No Borrado - No eres el propietario del Proyecto");
 			return "redirect:/";
 		}
-		
+
 		u.getProjects().remove(p);
 		logger.info("Proyecto Borrado de Usuario");
-		
-		while(!p.getCollaborators().isEmpty()){
+
+		while (!p.getCollaborators().isEmpty()) {
 			User ux = entityManager.find(User.class, p.getCollaborators().get(0).getId());
 			ux.getCollaborations().remove(p);
 			p.getCollaborators().remove(0);
 			logger.info("Colaboracion Borrada de Usuario " + ux.getName());
 		}
+
+		while(!p.getComments().isEmpty()){
+			Comentario c = entityManager.find(Comentario.class, p.getComments().get(0).getId());
+			entityManager.remove(c);
+			p.getComments().remove(0);
+		}	
 		
-		logger.info("Colaboradores Borrados - clear()");
+
+		logger.info("Colaboradores y comentarios Borrados- clear()");
 		
-		while(!p.getTracks().isEmpty()){
+		while (!p.getTracks().isEmpty()) {
 			Track t = entityManager.find(Track.class, p.getTracks().get(0).getId());
 			entityManager.remove(t);
 			p.getTracks().remove(0);
-		}	
-		
+		}
+
 		entityManager.remove(p);
 		logger.info("Proyecto Borrado - RootController.entityManager.remove(p)");
 
 		return "redirect:/user/" + u.getName().replace(' ', '_');
 	}
-	
+
 	@GetMapping("/my_tracks")
 	public String myTracks(Model m, HttpSession s) {
-		User u = (User)s.getAttribute("user");
+		User u = (User) s.getAttribute("user");
 		u = entityManager.find(User.class, u.getId());
-		
+
 		List<Track> lista = u.getTracks();
 		m.addAttribute("lista", lista);
-		logger.info("Nº Tracks del Usuario: " + lista.size());	
+		logger.info("Nº Tracks del Usuario: " + lista.size());
 		return "/my_tracks";
 	}
-	
+
 	@GetMapping("/customization")
 	public String customization(Model m, HttpSession s) {
-		User u = (User)s.getAttribute("user");
-		u = entityManager.find(User.class, u.getId());		
-		m.addAttribute("user", u);		
+		User u = (User) s.getAttribute("user");
+		u = entityManager.find(User.class, u.getId());
+		m.addAttribute("user", u);
 		return "customization";
 	}
-	
+
 	@RequestMapping(value = "/customization", method = RequestMethod.POST)
 	@Transactional
 	public String changeInfo(@RequestParam String desc, HttpSession s) {
-		
-		User u = (User)s.getAttribute("user");
-		u = entityManager.find(User.class, u.getId());	
+
+		User u = (User) s.getAttribute("user");
+		u = entityManager.find(User.class, u.getId());
 		u.setDescription(sanitizer.sanitize(desc));
 		logger.info("Descripcion Modificada");
-	
+
 		return "redirect:/user/" + u.getName().replace(' ', '_');
-		
+
 	}
 
 	// Ejemplo : Reconocimiento de Usuario
 
-	/*@GetMapping("/login/{role}")
-	public String login(@PathVariable String role, HttpSession s) {
-		s.setAttribute("role", role);
-		return "login";
-	}*/
+	/*
+	 * @GetMapping("/login/{role}") public String login(@PathVariable String
+	 * role, HttpSession s) { s.setAttribute("role", role); return "login"; }
+	 */
 
 	@GetMapping("/login")
 	public String login() {
@@ -578,4 +576,64 @@ public class RootController {
 	public String logout() {
 		return "logout";
 	}
+
+	@RequestMapping(value = "/addComent", method = RequestMethod.POST)
+	@Transactional
+	public String addComent(@RequestParam(required = true) String coment, @RequestParam(required = true) long project,
+			HttpSession s) {
+
+		User u = (User) s.getAttribute("user");
+		// si lo necesitase "fresco": u = entityManager.find(User.class,
+		// u.getId());
+
+		Proyecto p = entityManager.find(Proyecto.class, project);
+
+		if (p == null) {
+			// NO hay un proyecto con ese nombre
+			logger.info("Nombre de proyecto NO registrado");
+			return "redirect:/";
+		}
+
+		Comentario nueva = new Comentario();
+		nueva.setAutor(u);
+		nueva.setProyecto(p);
+		nueva.setMessage(sanitizer.sanitize(coment));
+
+		entityManager.persist(nueva);
+
+		// tecnicamente no hace falta modificar también el del usuario
+
+		entityManager.flush();
+		logger.info("flush completado; nuevo id es " + nueva.getId());
+		p.getComments().add(nueva);
+
+		return "redirect:/project/" + p.getName().replace(' ', '_');
+	}
+
+	// esta funcion es la nueva para borrar un comentario
+	@RequestMapping(value = "/deleteComent", method = RequestMethod.POST)
+	@Transactional
+	public String deleteComentario(@RequestParam long coment, @RequestParam(required = true) long pro, HttpSession s) {
+
+		Comentario t = entityManager.find(Comentario.class, coment);
+		if (t == null) {
+			logger.info("No Borrado - No existe el comentario");
+			return "redirect:/"; // comentario Inexistente
+		}
+
+		Proyecto p = entityManager.find(Proyecto.class, pro); // "Fresh"
+
+		User u = (User) s.getAttribute("user");
+		if (t.getAutor().getId() != u.getId()) {
+			logger.info("No Borrado - No eres el autor del comentario");
+			return "redirect:/"; // Can't delete a comment if it is not yours
+		}
+
+		p.getComments().remove(t);
+		entityManager.remove(t);
+		logger.info("Comentario Borrado - RootController");
+
+		return "redirect:/project/" + p.getName().replace(' ', '_');
+	}
+
 }

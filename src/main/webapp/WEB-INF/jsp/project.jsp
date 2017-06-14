@@ -90,11 +90,11 @@
 						</div>
 						<c:if test="${project.author.name == us}">
 							<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12 submitButton"
-							style="padding: 0; margin-top: 5px;">
+								style="padding: 0; margin-top: 5px;">
 								<form action="/deleteCollaborator" method="post">
-									<input type="hidden" name="pro" value="${project.id}" /> 
-									<input type="hidden" name="user" value="${c.id}" />
-									<input type="hidden" name="${_csrf.parameterName}"
+									<input type="hidden" name="pro" value="${project.id}" /> <input
+										type="hidden" name="user" value="${c.id}" /> <input
+										type="hidden" name="${_csrf.parameterName}"
 										value="${_csrf.token}" /> <input type="submit"
 										class="btn btn-danger form-control" value="Borrar Colaborador">
 								</form>
@@ -159,8 +159,8 @@
 										class="col-lx-12 col-md-12 col-sm-12 col-xs-12 submitButton"
 										style="padding: 0;">
 										<form action="/deleteTrack" method="post">
-											<input type="hidden" name="track" value="${t.id}" />
-											<input type="hidden" name="${_csrf.parameterName}"
+											<input type="hidden" name="track" value="${t.id}" /> <input
+												type="hidden" name="${_csrf.parameterName}"
 												value="${_csrf.token}" /> <input type="submit"
 												class="btn btn-danger form-control" value="Borrar Track">
 										</form>
@@ -186,6 +186,74 @@
 					</form>
 				</div>
 			</div>
+		</div>
+		<br>
+		<br>
+
+		<div class="row">
+			<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12">
+				<h4>Comentarios:</h4>
+			</div>
+
+
+			<form class="form-horizontal" action="/addComent" method="post">
+				<div class="col-lx-10 col-md-10 col-sm-8 col-xs-8">
+					<input type="text" name="coment" class="form-control" id="coment"
+						placeholder="Comentario" required="required" maxlength="255">
+					<input type="hidden" name="project" value="${project.id}" /> <input
+						type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+				</div>
+				<div class="col-lx-2 col-md-2 col-sm-4 col-xs-4 submitButton">
+					<input type="submit" class="btn btn-success form-control"
+						value="Comentar" />
+				</div>
+			</form>
+
+
+			<br>
+			<br>
+
+			<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12" style="margin-top:10px; padding:0">
+				<c:forEach items="${project.comments}" var="x">
+					<div class="row" style="margin: 5px;">
+						<div class="col-lx-1 col-md-1 col-sm-1 col-xs-1"
+							style="height: 50px; padding: 0;">
+							<img alt="coment" class="img-responsive img-circle"
+								style="max-height: 50px; margin: auto;"
+								src="../static/img/coment.png">
+						</div>
+						<div class="col-lx-9 col-md-9 col-sm-9 col-xs-9"
+							style="height: 50px; overflow: hidden;">
+							<p style="color: ghostwhite; font-size: 16px">
+								<a href="../user/${x.autor.name}"
+									style="color: gray; font-size: 22px;">${x.autor.name}</a> 
+									<span style="color: gray; font-size: 22px;">comentó:</span>
+								"${x.message}"
+
+							</p>
+
+						</div>
+
+						<c:if test="${x.autor.name == us}">
+							<div class="col-lx-2 col-md-2 col-sm-2 col-xs-2">
+								<div
+									class="col-lx-12 col-md-12 col-sm-12 col-xs-12 submitButton"
+									style="padding: 0;">
+									<form action="/deleteComent" method="post">
+										<input type="hidden" name="coment" value="${x.id}" /> <input
+											type="hidden" name="pro" value="${project.id}" /> <input
+											type="hidden" name="${_csrf.parameterName}"
+											value="${_csrf.token}" /> <input type="submit"
+											class="btn btn-danger form-control" value="Borrar Comentario">
+									</form>
+								</div>
+							</div>
+						</c:if>
+					</div>
+
+				</c:forEach>
+			</div>
+
 		</div>
 	</div>
 
