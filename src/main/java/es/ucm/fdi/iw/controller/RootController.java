@@ -157,27 +157,6 @@ public class RootController {
 		
 	}
 
-	@GetMapping("/customization")
-	public String customization(Model m, HttpSession s) {
-		User u = (User)s.getAttribute("user");
-		u = entityManager.find(User.class, u.getId());		
-		m.addAttribute("user", u);		
-		return "customization";
-	}
-	
-	@RequestMapping(value = "/customization", method = RequestMethod.POST)
-	@Transactional
-	public String changeInfo(@RequestParam String desc, HttpSession s) {
-		
-		User u = (User)s.getAttribute("user");
-		u = entityManager.find(User.class, u.getId());	
-		u.setDescription(sanitizer.sanitize(desc));
-		logger.info("Descripcion Modificada");
-	
-		return "redirect:/user/" + u.getName().replace(' ', '_');
-		
-	}
-
 	@GetMapping("/error")
 	public String error(String error, Model m) {
 		m.addAttribute("err", error);
@@ -371,7 +350,7 @@ public class RootController {
 			HttpSession s){
 
 		User u = (User)s.getAttribute("user");
-		// si lo necesitase "fresco": u = entityManager.find(User.class, u.getId());
+		u = entityManager.find(User.class, u.getId());
 
 		Proyecto p = entityManager.find(Proyecto.class, project);
 		if (p == null){
@@ -402,7 +381,7 @@ public class RootController {
 		entityManager.flush();
 		logger.info("flush completado; nuevo id es " + nueva.getId());
 		p.getTracks().add(nueva);
-		
+		u.getTracks().add(nueva);
 
 		return "redirect:/editor/" + nueva.getId();
 	}
@@ -457,10 +436,42 @@ public class RootController {
 			logger.info("No Borrado - No eres el autor del Track / Proyecto");
 			return "redirect:/";	// Can't delete a Track if it is not yours
 		}
-		
+		u = entityManager.find(User.class, u.getId());
+		u.getTracks().remove(t);
 		p.getTracks().remove(t);
 		entityManager.remove(t);
 		logger.info("Track Borrado - RootController");
+		
+		return "redirect:/project/" + p.getName().replace(' ', '_');
+	}
+	
+	@RequestMapping(value="/deleteCollaborator", method=RequestMethod.POST)
+	@Transactional
+	public String deleteCollaborator(@RequestParam long pro,
+			@RequestParam long user,
+			HttpSession s){
+		
+		Proyecto p = entityManager.find(Proyecto.class, pro);
+		if(p == null){
+			logger.info("No Borrado - No existe el Proyecto");
+			return "redirect:/";
+		}
+		
+		User u = (User)s.getAttribute("user");
+		if (p.getAuthor().getId() != u.getId()){
+			logger.info("No Borrado - No eres el autor del Proyecto");
+			return "redirect:/";
+		}
+		
+		User uc = entityManager.find(User.class, user);
+		if(!p.getCollaborators().contains(uc)){
+			logger.info("No Borrado - No existe el colaborador en el proyecto");
+			return "redirect:/";
+		}
+		
+		p.getCollaborators().remove(uc);
+		uc.getCollaborations().remove(p);
+		logger.info("Colaborador Borrado - RootController");
 		
 		return "redirect:/project/" + p.getName().replace(' ', '_');
 	}
@@ -494,7 +505,6 @@ public class RootController {
 			logger.info("Colaboracion Borrada de Usuario " + ux.getName());
 		}
 		
-		p.getCollaborators().clear();
 		logger.info("Colaboradores Borrados - clear()");
 		
 		while(!p.getTracks().isEmpty()){
@@ -509,6 +519,38 @@ public class RootController {
 		return "redirect:/user/" + u.getName().replace(' ', '_');
 	}
 	
+	@GetMapping("/my_tracks")
+	public String myTracks(Model m, HttpSession s) {
+		User u = (User)s.getAttribute("user");
+		u = entityManager.find(User.class, u.getId());
+		
+		List<Track> lista = u.getTracks();
+		m.addAttribute("lista", lista);
+		logger.info("Nº Tracks del Usuario: " + lista.size());	
+		return "/my_tracks";
+	}
+	
+	@GetMapping("/customization")
+	public String customization(Model m, HttpSession s) {
+		User u = (User)s.getAttribute("user");
+		u = entityManager.find(User.class, u.getId());		
+		m.addAttribute("user", u);		
+		return "customization";
+	}
+	
+	@RequestMapping(value = "/customization", method = RequestMethod.POST)
+	@Transactional
+	public String changeInfo(@RequestParam String desc, HttpSession s) {
+		
+		User u = (User)s.getAttribute("user");
+		u = entityManager.find(User.class, u.getId());	
+		u.setDescription(sanitizer.sanitize(desc));
+		logger.info("Descripcion Modificada");
+	
+		return "redirect:/user/" + u.getName().replace(' ', '_');
+		
+	}
+
 	// Ejemplo : Reconocimiento de Usuario
 
 	/*@GetMapping("/login/{role}")

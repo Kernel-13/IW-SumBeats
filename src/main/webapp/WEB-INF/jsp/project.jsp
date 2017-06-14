@@ -88,6 +88,18 @@
 								<a href="/user/${c.name}">${c.name}</a>
 							</p>
 						</div>
+						<c:if test="${project.author.name == us}">
+							<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12 submitButton"
+							style="padding: 0; margin-top: 5px;">
+								<form action="/deleteCollaborator" method="post">
+									<input type="hidden" name="pro" value="${project.id}" /> 
+									<input type="hidden" name="user" value="${c.id}" />
+									<input type="hidden" name="${_csrf.parameterName}"
+										value="${_csrf.token}" /> <input type="submit"
+										class="btn btn-danger form-control" value="Borrar Colaborador">
+								</form>
+							</div>
+						</c:if>
 					</div>
 				</c:forEach>
 			</div>

@@ -24,9 +24,20 @@ public class User {
 	private Date lastConnected;
 	private List<Correo> bandeja;
 	private String roles;
+	private List<Track> tracks;
 	
 	public User(){}
 	
+	@OneToMany(targetEntity=Track.class)
+	@JoinColumn(name="creator")
+	public List<Track> getTracks() {
+		return tracks;
+	}
+
+	public void setTracks(List<Track> tracks) {
+		this.tracks = tracks;
+	}
+
 	@Id
 	@GeneratedValue
 	public long getId() {
