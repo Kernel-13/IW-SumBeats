@@ -75,4 +75,9 @@ public class Track {
 	public void setProject(Proyecto project) {
 		this.project = project;
 	}
+	
+	@Override
+	public boolean equals(Object obj){
+		return obj!=null && obj.getClass() == this.getClass() && this.id == ((Track)obj).id;
+	}
 }

@@ -1,5 +1,6 @@
 package es.ucm.fdi.iw.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -146,6 +147,26 @@ public class User {
 	@Override
 	public boolean equals(Object obj) {
 		return obj!=null && obj.getClass() == this.getClass() && this.id == ((User)obj).id;
+	}
+	
+	@Transient
+	public List<Correo> getOutput() {
+		List<Correo> filtered = new ArrayList<Correo>();
+		for (Correo c : bandeja) {
+			if (c.getAuthor().equals(this)) 
+				filtered.add(c);
+		}
+		return filtered;
+	}
+
+	@Transient
+	public List<Correo> getInput() {
+		List<Correo> filtered = new ArrayList<Correo>();
+		for (Correo c : bandeja) {
+			if (c.getDestinatario().equals(this)) 
+				filtered.add(c);
+		}
+		return filtered;
 	}
 
 }

@@ -48,6 +48,9 @@ public class Correo{
 		this.destinatario = destinatario;
 	}
 	
-	
+	@Override
+	public boolean equals(Object obj){
+		return obj!=null && obj.getClass() == this.getClass() && this.id == ((Correo)obj).id;
+	}
 
 }

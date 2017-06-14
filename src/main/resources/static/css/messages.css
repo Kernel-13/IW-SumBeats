@@ -10,6 +10,10 @@ body {
 	vertical-align: top;
 }
 
+.section{
+	margin: 10px;
+}
+
 .col-md-2 div {
 	margin-top: 5px;
 	text-align: center;

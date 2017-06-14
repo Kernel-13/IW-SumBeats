@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.HtmlUtils;
 
 import es.ucm.fdi.iw.model.Comentario;
+import es.ucm.fdi.iw.model.Correo;
 import es.ucm.fdi.iw.model.Proyecto;
 import es.ucm.fdi.iw.model.ProyectoQueries;
 import es.ucm.fdi.iw.model.Track;
@@ -635,5 +636,72 @@ public class RootController {
 
 		return "redirect:/project/" + p.getName().replace(' ', '_');
 	}
+	
+	/* 
+	 * 
+	 *  AÑADIR MENSAJES DE LA BANDEJA
+	 *  
+	 *  */
+	
+	@GetMapping("/bandeja")
+	public String bandeja (
+			HttpSession s, Model m){
+		User u = entityManager.find(User.class, ((User)s.getAttribute("user")).getId() );
+		m.addAttribute("input", u.getInput());
+		logger.info("Bandeja general:");
+		for (Correo c : u.getBandeja()) {
+			logger.info("De: " + c.getAuthor().getName() + " para " + c.getDestinatario().getName() + ". Mensaje: " + c.getMessage());
+		}
+		logger.info("Bandeja de entrada:");
+		for (Correo c : u.getInput()) {
+			logger.info("De: " + c.getAuthor().getName() + " para " + c.getDestinatario().getName() + ". Mensaje: " + c.getMessage());
+		}
+		m.addAttribute("output", u.getOutput());
+		logger.info("Bandeja de salida:");
+		for (Correo c : u.getOutput()) {
+			logger.info("De: " + c.getAuthor().getName() + " para " + c.getDestinatario().getName() + ". Mensaje: " + c.getMessage());
+		}
+		return "bandeja";
+	}
+	
+	@RequestMapping(value="/sendMessage",method=RequestMethod.POST)
+	@Transactional
+	public String sendMessage(
+			@RequestParam String dest,
+			@RequestParam String msg,
+			HttpSession s){
+		
+		User from = (User)s.getAttribute("user");
+		from = entityManager.find(User.class, from.getId() );
+		User to = UserQueries.findWithName(entityManager, dest );
+		
+		if(to == null){
+			//No existe ese destinatario
+			
+			return "redirect:/";
+		}
+		
+		Correo nuevo = new Correo();
+		nuevo.setAuthor(from);
+		nuevo.setDestinatario(to);
+		nuevo.setMessage(sanitizer.sanitize(msg));
+		
+		entityManager.persist(nuevo);
+		entityManager.flush();
+		
+		from.getBandeja().add(nuevo);
+		to.getBandeja().add(nuevo);
+		
+		logger.info("El nuevo mensaje es de: " + nuevo.getAuthor().getName() + " para " + nuevo.getDestinatario().getName());
+		
+		return "redirect:/bandeja";
+	}
+	
+	/* 
+	 * 
+	 *  AÑADIR MENSAJES DE LA BANDEJA
+	 *  
+	 *  */
+	
 
 }
