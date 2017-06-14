@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 
 @Entity
 public class User {
@@ -11,7 +12,10 @@ public class User {
 	private long id;
 	private String name;
 	private String password; // TEMPORAL
+	
+	@Size(max = 500)
 	private String description;
+	
 	private String email;
 	private List<Proyecto> projects;
 	private List<Proyecto> collaborations;

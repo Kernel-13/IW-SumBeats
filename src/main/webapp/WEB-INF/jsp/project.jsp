@@ -7,9 +7,12 @@
 <head>
 <%@ include file="../jspf/head.jspf"%>
 <link rel="stylesheet" type="text/css" href="../static/css/main.css">
-<script src="../static/js/abcjs_editor_midi_3.1.2-min.js" type="text/javascript"></script>
-<link rel="stylesheet" type="text/css"	href="../static/css/abcjs-midi.css">
-<link rel="stylesheet"	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<script src="../static/js/abcjs_editor_midi_3.1.2-min.js"
+	type="text/javascript"></script>
+<link rel="stylesheet" type="text/css"
+	href="../static/css/abcjs-midi.css">
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 <title>${project.name}</title>
 </head>
 <body style="margin-bottom: 30px;">
@@ -36,6 +39,15 @@
 						style="padding: 0;">
 						<a href="${project.name}/pendingTracks"
 							class="btn btn-info form-control">Tracks Pendientes</a>
+					</div>
+					<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12 submitButton"
+						style="padding: 0; margin-top: 5px;">
+						<form action="/deleteProject" method="post">
+							<input type="hidden" name="proyecto" value="${project.id}" /> <input
+								type="hidden" name="${_csrf.parameterName}"
+								value="${_csrf.token}" /> <input type="submit"
+								class="btn btn-danger form-control" value="Borrar Proyecto">
+						</form>
 					</div>
 				</c:if>
 			</div>
@@ -80,11 +92,11 @@
 				</c:forEach>
 			</div>
 		</div>
-		
+
 		<%
 			int count = 0;
 		%>
-		
+
 		<div class="row">
 			<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12">
 				<h4>Recursos:</h4>
@@ -99,7 +111,7 @@
 									style="max-height: 50px; margin: auto;"
 									src="../static/img/0404-negro.jpg">
 							</div>
-							<div class="col-lx-8 col-md-8 col-sm-8 col-xs-8"
+							<div class="col-lx-5 col-md-5 col-sm-5 col-xs-5"
 								style="line-height: 50px; height: 50px; overflow: hidden;">
 								<a href="../editor/${t.id}"
 									style="color: ghostwhite; font-size: 20px;">"${t.name}"</a> <a
@@ -108,15 +120,41 @@
 							</div>
 							<div class="col-lx-3 col-md-3 col-sm-3 col-xs-3"
 								style="line-height: 50px; height: 50px;">
-								 
-								<%out.println("<textarea class='hidden' id='abc_" + (++count) + "'>");%>
+
+								<%
+									out.println("<textarea class='hidden' id='abc_" + (++count) + "'>");
+								%>
 								${t.abc}
-								<%out.println("</textarea>");%>
-								<%out.println("<div class='hidden' id='warnings_" + (count) + "'></div>");%>
-								<%out.println("<div class='hidden' id='paper_" + (count) + "'></div>");%>
-								<%out.println("<div class='hidden' id='midi_download_" + (count) + "'></div>");%>
-								<%out.println("<div style='width: 100%; margin-top: 5px;' id='midi_" + (count) + "'></div>");%>
+								<%
+									out.println("</textarea>");
+								%>
+								<%
+									out.println("<div class='hidden' id='warnings_" + (count) + "'></div>");
+								%>
+								<%
+									out.println("<div class='hidden' id='paper_" + (count) + "'></div>");
+								%>
+								<%
+									out.println("<div class='hidden' id='midi_download_" + (count) + "'></div>");
+								%>
+								<%
+									out.println("<div style='width: 100%; margin-top: 5px;' id='midi_" + (count) + "'></div>");
+								%>
 							</div>
+							<c:if test="${project.author.name == us}">
+								<div class="col-lx-3 col-md-3 col-sm-3 col-xs-3">
+									<div
+										class="col-lx-12 col-md-12 col-sm-12 col-xs-12 submitButton"
+										style="padding: 0;">
+										<form action="/deleteTrack" method="post">
+											<input type="hidden" name="track" value="${t.id}" />
+											<input type="hidden" name="${_csrf.parameterName}"
+												value="${_csrf.token}" /> <input type="submit"
+												class="btn btn-danger form-control" value="Borrar Track">
+										</form>
+									</div>
+								</div>
+							</c:if>
 						</div>
 					</c:forEach>
 				</div>
@@ -138,7 +176,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<script type="text/javascript">
 		window.ABCJS.midi.soundfontUrl = "/static/soundfont/"
 
@@ -157,15 +195,17 @@
 		function initEditor() {
 
 			var i;
-			for (i = 1; i <= <%out.println(count);%> ; i++) {
-				
-				new ABCJS.Editor("abc_"+i, {
-					paper_id : "paper_"+i,
+			for (i = 1; i <=
+	<%out.println(count);%>
+		; i++) {
+
+				new ABCJS.Editor("abc_" + i, {
+					paper_id : "paper_" + i,
 					generate_midi : true,
-					midi_id : "midi_"+i,
-					midi_download_id : "midi-download_"+i,
+					midi_id : "midi_" + i,
+					midi_download_id : "midi-download_" + i,
 					generate_warnings : true,
-					warnings_id : "warnings_"+i,
+					warnings_id : "warnings_" + i,
 					midi_options : {
 						generateDownload : false
 
@@ -177,14 +217,14 @@
 					}
 				});
 			}
-			
+
 			var list = document.getElementsByClassName('abcjs-midi-clock');
 			for (var j = 0; j < list.length; j++) {
-				list[j].className += ' hidden'; 
+				list[j].className += ' hidden';
 			}
-			
+
 		}
-		
+
 		/*
 		
 		var list = document.getElementsByClassName('abcjs-midi-start');
@@ -192,10 +232,10 @@
 			list[j].click(); 
 		}
 		
-		*/
+		 */
 
 		window.addEventListener("load", initEditor, false);
 	</script>
-	
+
 </body>
 </html>

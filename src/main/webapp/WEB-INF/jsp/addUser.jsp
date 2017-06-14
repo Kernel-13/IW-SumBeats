@@ -45,7 +45,7 @@
 								<div class="form-group">
 									<div class="col-sm-12">
 										<textarea name="desc" class="form-control"
-											style="width: 100%;" placeholder="Descripción" maxlength="255"></textarea>
+											style="width: 100%;" placeholder="Descripción" maxlength="500"></textarea>
 									</div>
 								</div>
 								<input type="hidden" name="${_csrf.parameterName}"

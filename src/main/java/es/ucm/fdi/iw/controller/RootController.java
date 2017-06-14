@@ -157,6 +157,27 @@ public class RootController {
 		
 	}
 
+	@GetMapping("/customization")
+	public String customization(Model m, HttpSession s) {
+		User u = (User)s.getAttribute("user");
+		u = entityManager.find(User.class, u.getId());		
+		m.addAttribute("user", u);		
+		return "customization";
+	}
+	
+	@RequestMapping(value = "/customization", method = RequestMethod.POST)
+	@Transactional
+	public String changeInfo(@RequestParam String desc, HttpSession s) {
+		
+		User u = (User)s.getAttribute("user");
+		u = entityManager.find(User.class, u.getId());	
+		u.setDescription(sanitizer.sanitize(desc));
+		logger.info("Descripcion Modificada");
+	
+		return "redirect:/user/" + u.getName().replace(' ', '_');
+		
+	}
+
 	@GetMapping("/error")
 	public String error(String error, Model m) {
 		m.addAttribute("err", error);
@@ -416,6 +437,76 @@ public class RootController {
 		} else {
 			return "redirect:/project/" + t.getProject().getName().replace(' ', '_');
 		}
+	}
+	
+	@RequestMapping(value="/deleteTrack", method=RequestMethod.POST)
+	@Transactional
+	public String deleteTrack(@RequestParam long track,
+			HttpSession s){
+		
+		Track t = entityManager.find(Track.class, track);
+		if(t == null){
+			logger.info("No Borrado - No existe el track");
+			return "redirect:/"; 	// Track Inexistente
+		}
+		
+		Proyecto p = entityManager.find(Proyecto.class, t.getProject().getId());	// "Fresh"
+		
+		User u = (User)s.getAttribute("user");
+		if (t.getCreator().getId() != u.getId() && t.getProject().getAuthor().getId() != u.getId()){
+			logger.info("No Borrado - No eres el autor del Track / Proyecto");
+			return "redirect:/";	// Can't delete a Track if it is not yours
+		}
+		
+		p.getTracks().remove(t);
+		entityManager.remove(t);
+		logger.info("Track Borrado - RootController");
+		
+		return "redirect:/project/" + p.getName().replace(' ', '_');
+	}
+	
+	@RequestMapping(value="/deleteProject", method=RequestMethod.POST)
+	@Transactional
+	public String deleteProject(@RequestParam long proyecto,
+			HttpSession s){
+		
+		Proyecto p = entityManager.find(Proyecto.class, proyecto);
+		if(p == null){
+			logger.info("No Borrado - No existe el Proyecto");
+			return "redirect:/";
+		}
+		
+		User u = (User)s.getAttribute("user");
+		u = entityManager.find(User.class, u.getId());
+		
+		if(p.getAuthor().getId() != u.getId()){
+			logger.info("No Borrado - No eres el propietario del Proyecto");
+			return "redirect:/";
+		}
+		
+		u.getProjects().remove(p);
+		logger.info("Proyecto Borrado de Usuario");
+		
+		while(!p.getCollaborators().isEmpty()){
+			User ux = entityManager.find(User.class, p.getCollaborators().get(0).getId());
+			ux.getCollaborations().remove(p);
+			p.getCollaborators().remove(0);
+			logger.info("Colaboracion Borrada de Usuario " + ux.getName());
+		}
+		
+		p.getCollaborators().clear();
+		logger.info("Colaboradores Borrados - clear()");
+		
+		while(!p.getTracks().isEmpty()){
+			Track t = entityManager.find(Track.class, p.getTracks().get(0).getId());
+			entityManager.remove(t);
+			p.getTracks().remove(0);
+		}	
+		
+		entityManager.remove(p);
+		logger.info("Proyecto Borrado - RootController.entityManager.remove(p)");
+
+		return "redirect:/user/" + u.getName().replace(' ', '_');
 	}
 	
 	// Ejemplo : Reconocimiento de Usuario
