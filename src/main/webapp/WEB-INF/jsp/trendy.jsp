@@ -23,6 +23,7 @@
 						<div class="search-text">
 							<h3><a href="project/${fn:replace(c.name,' ','_')}">${c.name}</a></h3>
 							<p>${c.desc}</p>
+							<h4 style="color:burlywood; font-weight: bold;">Points: ${c.weekRating}</h4>
 						</div>
 					</div>
 

@@ -11,6 +11,8 @@
 	type="text/javascript"></script>
 <link rel="stylesheet" type="text/css"
 	href="../static/css/abcjs-midi.css">
+<link rel="stylesheet" type="text/css"
+	href="../static/css/buttons.css">
 <link rel="stylesheet"
 	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 <title>${project.name}</title>
@@ -32,7 +34,7 @@
 				style="text-align: center;">
 				<!-- <h4>Rating: ???</h4>-->
 				<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12">
-					<h4>Rating: ${project.getGlobalRating()}</h4>
+					<h4>Points: ${project.getGlobalRating()}</h4>
 				</div>
 				<c:if test="${project.author.name == us}">
 					<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12 submitButton"
@@ -49,7 +51,20 @@
 								class="btn btn-danger form-control" value="Borrar Proyecto">
 						</form>
 					</div>
+
 				</c:if>
+				<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12 submitButton"
+					style="padding: 0; margin-top: 5px;">
+					<form action="/addLike" method="post">
+						<input type="hidden" name="proyecto" value="${project.id}" /> <input
+							type="hidden" name="${_csrf.parameterName}"
+							value="${_csrf.token}" />
+						<button type="submit" class="btn btn-warning form-control"
+							value="Marcar como Favorito">
+							<span class="glyphicon glyphicon-thumbs-up"></span> Thumbs Up!
+						</button>
+					</form>
+				</div>
 			</div>
 		</div>
 
@@ -187,8 +202,7 @@
 				</div>
 			</div>
 		</div>
-		<br>
-		<br>
+		<br> <br>
 
 		<div class="row">
 			<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12">
@@ -210,10 +224,10 @@
 			</form>
 
 
-			<br>
-			<br>
+			<br> <br>
 
-			<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12" style="margin-top:10px; padding:0">
+			<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12"
+				style="margin-top: 10px; padding: 0">
 				<c:forEach items="${project.comments}" var="x">
 					<div class="row" style="margin: 5px;">
 						<div class="col-lx-1 col-md-1 col-sm-1 col-xs-1"
@@ -224,11 +238,11 @@
 						</div>
 						<div class="col-lx-9 col-md-9 col-sm-9 col-xs-9"
 							style="height: 50px; overflow: hidden;">
-							<p style="color: ghostwhite; font-size: 16px">
+							<p style="color: ghostwhite; font-size: 18px">
 								<a href="../user/${x.autor.name}"
-									style="color: gray; font-size: 22px;">${x.autor.name}</a> 
-									<span style="color: gray; font-size: 22px;">comentó:</span>
-								"${x.message}"
+									style="color: gray; font-size: 16px;">${x.autor.name}</a> <span
+									style="color: gray; font-size: 16px;">comentó:</span>
+								${x.message}
 
 							</p>
 

@@ -1,9 +1,22 @@
 /* ejemplo de css */
 
+@import url("https://fonts.googleapis.com/css?family=Muli|Open+Sans");
+
+a{
+    color: gray;
+    display: inline-block;
+}
+
+a:hover{
+    color: aliceblue;
+    text-decoration: none;
+}
+
 body {
   background-color: #303030;
   color: white;
   padding-top: 50px;
+  font-family: 'Muli', sans-serif;
 }
 .starter-template {
   padding: 40px 15px;

@@ -33,7 +33,7 @@ public class ProyectoQueries {
 	public static List<Proyecto> getTrendy(EntityManager entityManager) {
 		try {
 			TypedQuery<Proyecto> query = entityManager
-					.createQuery("from Proyecto p order by p.weekRating", Proyecto.class).setMaxResults(10);
+					.createQuery("from Proyecto p order by p.weekRating desc", Proyecto.class).setMaxResults(10);
 			List<Proyecto> lista = query.getResultList();
 			return lista;
 		} catch (Exception e) {

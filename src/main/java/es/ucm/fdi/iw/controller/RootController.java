@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpSession;
 
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,8 @@ import es.ucm.fdi.iw.util.HtmlEscapeStringEditor;
 public class RootController {
 
 	private static final Logger logger = LoggerFactory.getLogger(RootController.class);
-	private static final HtmlEscapeStringEditor sanitizer = new HtmlEscapeStringEditor();
+	// private static final HtmlEscapeStringEditor sanitizer = new
+	// HtmlEscapeStringEditor();
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -79,7 +81,8 @@ public class RootController {
 
 	@RequestMapping(value = "/search")
 	public String search(@RequestParam("busqueda") String busqueda, Model m) {
-		List<Proyecto> lista = ProyectoQueries.getProjectSearch(entityManager, busqueda);
+		String search = Jsoup.parse(busqueda).text();
+		List<Proyecto> lista = ProyectoQueries.getProjectSearch(entityManager, search);
 		m.addAttribute("lista", lista);
 		return "search";
 	}
@@ -139,13 +142,13 @@ public class RootController {
 			return "redirect:/home";
 		}
 
-		String newName = sanitizer.sanitize(name);
+		String newName = Jsoup.parse(name).text();
 		User u = new User();
 		u.setName(newName);
 		u.setEmail(HtmlUtils.htmlEscape(email.trim()));
 		u.setPassword(passwordEncoder.encode(pass));
 
-		u.setDescription(sanitizer.sanitize(desc));
+		u.setDescription(Jsoup.parse(desc).text());
 
 		u.setRoles("USER");
 		logger.info("Nuevo usuario registrado: " + newName);
@@ -261,8 +264,8 @@ public class RootController {
 		usuario = entityManager.find(User.class, usuario.getId());
 
 		Proyecto proy = new Proyecto();
-		proy.setName(sanitizer.sanitize(title));
-		proy.setDesc(sanitizer.sanitize(desc));
+		proy.setName(Jsoup.parse(title).text());
+		proy.setDesc(Jsoup.parse(desc).text());
 		proy.setAuthor(usuario);
 
 		this.entityManager.persist(proy);
@@ -361,7 +364,7 @@ public class RootController {
 			return "redirect:/project/" + p.getName().replace(' ', '_');
 		}
 		Track nueva = new Track();
-		nueva.setName(sanitizer.sanitize(track));
+		nueva.setName(Jsoup.parse(track).text());
 		if (p.getAuthor().getId() == u.getId() || p.isCollaborator(u)) {
 			// al autor y los colaboradores se les pone directamente en la lista
 			// de tracks activas
@@ -404,7 +407,7 @@ public class RootController {
 		}
 
 		// t.setAbc(HtmlUtils.htmlEscape(abc.trim()));
-		t.setAbc(sanitizer.sanitize(abc));
+		t.setAbc(Jsoup.parse(abc).text());
 
 		if (t.getStatus() == Track.ACTIVE) {
 			return "redirect:/project/" + t.getProject().getName().replace(' ', '_');
@@ -498,15 +501,14 @@ public class RootController {
 			logger.info("Colaboracion Borrada de Usuario " + ux.getName());
 		}
 
-		while(!p.getComments().isEmpty()){
+		while (!p.getComments().isEmpty()) {
 			Comentario c = entityManager.find(Comentario.class, p.getComments().get(0).getId());
 			entityManager.remove(c);
 			p.getComments().remove(0);
-		}	
-		
+		}
 
 		logger.info("Colaboradores y comentarios Borrados- clear()");
-		
+
 		while (!p.getTracks().isEmpty()) {
 			Track t = entityManager.find(Track.class, p.getTracks().get(0).getId());
 			entityManager.remove(t);
@@ -544,11 +546,28 @@ public class RootController {
 
 		User u = (User) s.getAttribute("user");
 		u = entityManager.find(User.class, u.getId());
-		u.setDescription(sanitizer.sanitize(desc));
+		u.setDescription(Jsoup.parse(desc).text());
 		logger.info("Descripcion Modificada");
 
 		return "redirect:/user/" + u.getName().replace(' ', '_');
 
+	}
+
+	@RequestMapping(value = "/addLike", method = RequestMethod.POST)
+	@Transactional
+	public String addLike(@RequestParam long proyecto) {
+
+		Proyecto p = entityManager.find(Proyecto.class, proyecto);
+
+		if (p == null) {
+			logger.info("Invalid Project");
+			return "redirect:/";
+		}
+
+		p.setGlobalRating(p.getGlobalRating() + 1);
+		p.setWeekRating(p.getWeekRating() + 1);
+
+		return "redirect:/project/" + p.getName();
 	}
 
 	// Ejemplo : Reconocimiento de Usuario
@@ -598,7 +617,9 @@ public class RootController {
 		Comentario nueva = new Comentario();
 		nueva.setAutor(u);
 		nueva.setProyecto(p);
-		nueva.setMessage(sanitizer.sanitize(coment));
+
+		// nueva.setMessage(sanitizer.sanitize(coment));
+		nueva.setMessage(Jsoup.parse(coment).text());
 
 		entityManager.persist(nueva);
 
@@ -636,72 +657,65 @@ public class RootController {
 
 		return "redirect:/project/" + p.getName().replace(' ', '_');
 	}
-	
-	/* 
+
+	/*
 	 * 
-	 *  AÑADIR MENSAJES DE LA BANDEJA
-	 *  
-	 *  */
-	
+	 * AGREGAR MENSAJES DE LA BANDEJA
+	 * 
+	 */
+
 	@GetMapping("/bandeja")
-	public String bandeja (
-			HttpSession s, Model m){
-		User u = entityManager.find(User.class, ((User)s.getAttribute("user")).getId() );
+	public String bandeja(HttpSession s, Model m) {
+		User u = entityManager.find(User.class, ((User) s.getAttribute("user")).getId());
 		m.addAttribute("input", u.getInput());
 		logger.info("Bandeja general:");
 		for (Correo c : u.getBandeja()) {
-			logger.info("De: " + c.getAuthor().getName() + " para " + c.getDestinatario().getName() + ". Mensaje: " + c.getMessage());
+			logger.info("De: " + c.getAuthor().getName() + " para " + c.getDestinatario().getName() + ". Mensaje: "
+					+ c.getMessage());
 		}
 		logger.info("Bandeja de entrada:");
 		for (Correo c : u.getInput()) {
-			logger.info("De: " + c.getAuthor().getName() + " para " + c.getDestinatario().getName() + ". Mensaje: " + c.getMessage());
+			logger.info("De: " + c.getAuthor().getName() + " para " + c.getDestinatario().getName() + ". Mensaje: "
+					+ c.getMessage());
 		}
 		m.addAttribute("output", u.getOutput());
 		logger.info("Bandeja de salida:");
 		for (Correo c : u.getOutput()) {
-			logger.info("De: " + c.getAuthor().getName() + " para " + c.getDestinatario().getName() + ". Mensaje: " + c.getMessage());
+			logger.info("De: " + c.getAuthor().getName() + " para " + c.getDestinatario().getName() + ". Mensaje: "
+					+ c.getMessage());
 		}
 		return "bandeja";
 	}
-	
-	@RequestMapping(value="/sendMessage",method=RequestMethod.POST)
+
+	@RequestMapping(value = "/sendMessage", method = RequestMethod.POST)
 	@Transactional
-	public String sendMessage(
-			@RequestParam String dest,
-			@RequestParam String msg,
-			HttpSession s){
-		
-		User from = (User)s.getAttribute("user");
-		from = entityManager.find(User.class, from.getId() );
-		User to = UserQueries.findWithName(entityManager, dest );
-		
-		if(to == null){
-			//No existe ese destinatario
-			
+	public String sendMessage(@RequestParam String dest, @RequestParam String msg, HttpSession s) {
+
+		User from = (User) s.getAttribute("user");
+		from = entityManager.find(User.class, from.getId());
+		User to = UserQueries.findWithName(entityManager, dest);
+
+		if (to == null) {
+			// No existe ese destinatario
+
 			return "redirect:/";
 		}
-		
+
 		Correo nuevo = new Correo();
 		nuevo.setAuthor(from);
 		nuevo.setDestinatario(to);
-		nuevo.setMessage(sanitizer.sanitize(msg));
-		
+		nuevo.setMessage(Jsoup.parse(msg).text());
+
 		entityManager.persist(nuevo);
 		entityManager.flush();
-		
+
 		from.getBandeja().add(nuevo);
 		to.getBandeja().add(nuevo);
-		
-		logger.info("El nuevo mensaje es de: " + nuevo.getAuthor().getName() + " para " + nuevo.getDestinatario().getName());
-		
+
+		logger.info("El nuevo mensaje es de: " + nuevo.getAuthor().getName() + " para "
+				+ nuevo.getDestinatario().getName());
+
 		return "redirect:/bandeja";
 	}
-	
-	/* 
-	 * 
-	 *  AÑADIR MENSAJES DE LA BANDEJA
-	 *  
-	 *  */
-	
 
 }

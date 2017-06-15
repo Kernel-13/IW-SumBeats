@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Implementation-Title: SumBeats
 Implementation-Version: 0.0.1-SNAPSHOT
-Built-By: KERNEL 9
+Built-By: Ederson
 Implementation-Vendor-Id: es.ucm.fdi
-Build-Jdk: 1.8.0_91
+Build-Jdk: 1.8.0_101
 Implementation-URL: http://projects.spring.io/spring-boot/SumBeats/
 Created-By: Maven Integration for Eclipse
 Implementation-Vendor: Pivotal Software, Inc.
