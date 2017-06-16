@@ -150,7 +150,7 @@ public class User {
 	}
 	
 	@Transient
-	public List<Correo> getOutput() {
+	public List<Correo> getOutbox() {
 		List<Correo> filtered = new ArrayList<Correo>();
 		for (Correo c : bandeja) {
 			if (c.getAuthor().equals(this)) 
@@ -160,7 +160,7 @@ public class User {
 	}
 
 	@Transient
-	public List<Correo> getInput() {
+	public List<Correo> getInbox() {
 		List<Correo> filtered = new ArrayList<Correo>();
 		for (Correo c : bandeja) {
 			if (c.getDestinatario().equals(this)) 

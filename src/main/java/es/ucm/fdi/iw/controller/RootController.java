@@ -12,7 +12,6 @@ import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +34,6 @@ import es.ucm.fdi.iw.model.Track;
 import es.ucm.fdi.iw.model.TrackQueries;
 import es.ucm.fdi.iw.model.User;
 import es.ucm.fdi.iw.model.UserQueries;
-import es.ucm.fdi.iw.util.HtmlEscapeStringEditor;
 
 @Controller
 public class RootController {
@@ -305,8 +303,7 @@ public class RootController {
 			return "redirect:/project/" + p.getName().replace(' ', '_');
 		}
 
-		// También comprobamos que quien ha mandado la petición ha sido el
-		// creador del proyecto
+		// También comprobamos que quien ha mandado la petición ha sido el creador del proyecto
 		User creador = (User) s.getAttribute("user");
 		creador = entityManager.find(User.class, creador.getId());
 
@@ -316,30 +313,19 @@ public class RootController {
 			return "redirect:/";
 		}
 
-		// Por último hay que mirar que no estuviese ya registrado como
-		// colaborador
+		// Por último hay que mirar que no estuviese ya registrado como colaborador
 		if (p.isCollaborator(colab)) {
 			// Ese colaborador ya está registrado
 			logger.info("Nombre de colaborador ya registrado");
 			return "redirect:/project/" + p.getName().replace(' ', '_');
 		}
 
-		// Si llegamos aquí es que todo era correcto
-		/*
-		 * List<User> colabora = new ArrayList<User>(); colabora =
-		 * p.getCollaborators(); colabora.add(colab);
-		 * p.setCollaborators(colabora);
-		 */
-
 		colab.getCollaborations().add(p);
 		p.getCollaborators().add(colab);
 
-		// entityManager.persist(colab);
-		// entityManager.persist(p);
-
 		logger.info("Redirigido. ¿TODO BIEN?");
 		logger.info("num colaboradores:" + p.getCollaborators().size());
-		// entityManager.flush();
+		
 		return "redirect:/project/" + p.getName().replace(' ', '_');
 
 	}
@@ -572,25 +558,10 @@ public class RootController {
 
 	// Ejemplo : Reconocimiento de Usuario
 
-	/*
-	 * @GetMapping("/login/{role}") public String login(@PathVariable String
-	 * role, HttpSession s) { s.setAttribute("role", role); return "login"; }
-	 */
-
 	@GetMapping("/login")
 	public String login() {
 		return "login";
 	}
-
-	/*
-	 * @GetMapping("/login")
-	 * 
-	 * @ResponseBody
-	 * 
-	 * @Transactional public String login(HttpSession s) { ProyectoQueries pq =
-	 * new ProyectoQueries(entityManager); List<Proyecto> lista =
-	 * pq.getProjectSearch("e"); return lista.toString(); }
-	 */
 
 	@GetMapping("/logout")
 	public String logout() {
@@ -632,7 +603,6 @@ public class RootController {
 		return "redirect:/project/" + p.getName().replace(' ', '_');
 	}
 
-	// esta funcion es la nueva para borrar un comentario
 	@RequestMapping(value = "/deleteComent", method = RequestMethod.POST)
 	@Transactional
 	public String deleteComentario(@RequestParam long coment, @RequestParam(required = true) long pro, HttpSession s) {
@@ -658,32 +628,30 @@ public class RootController {
 		return "redirect:/project/" + p.getName().replace(' ', '_');
 	}
 
-	/*
-	 * 
-	 * AGREGAR MENSAJES DE LA BANDEJA
-	 * 
-	 */
-
 	@GetMapping("/bandeja")
 	public String bandeja(HttpSession s, Model m) {
 		User u = entityManager.find(User.class, ((User) s.getAttribute("user")).getId());
-		m.addAttribute("input", u.getInput());
-		logger.info("Bandeja general:");
+		
+		logger.info("Bandeja general -- Nº Messages : " + u.getBandeja().size());
 		for (Correo c : u.getBandeja()) {
-			logger.info("De: " + c.getAuthor().getName() + " para " + c.getDestinatario().getName() + ". Mensaje: "
+			logger.info("Sender: " + c.getAuthor().getName());
+			logger.info("Receptor: " + c.getDestinatario().getName());
+		}
+		logger.info("Inbox -- Nº Messages : " + u.getInbox().size());
+		for (Correo c : u.getInbox()) {
+			logger.info("From: " + c.getAuthor().getName() + " to " + c.getDestinatario().getName() + ". Message: "
 					+ c.getMessage());
 		}
-		logger.info("Bandeja de entrada:");
-		for (Correo c : u.getInput()) {
-			logger.info("De: " + c.getAuthor().getName() + " para " + c.getDestinatario().getName() + ". Mensaje: "
+		
+		logger.info("Outbox -- Nº Messages : " + u.getOutbox().size());
+		for (Correo c : u.getOutbox()) {
+			logger.info("From: " + c.getAuthor().getName() + " to " + c.getDestinatario().getName() + ". Message: "
 					+ c.getMessage());
 		}
-		m.addAttribute("output", u.getOutput());
-		logger.info("Bandeja de salida:");
-		for (Correo c : u.getOutput()) {
-			logger.info("De: " + c.getAuthor().getName() + " para " + c.getDestinatario().getName() + ". Mensaje: "
-					+ c.getMessage());
-		}
+		
+		m.addAttribute("input", u.getInbox());
+		m.addAttribute("output", u.getOutbox());
+		
 		return "bandeja";
 	}
 
@@ -691,30 +659,45 @@ public class RootController {
 	@Transactional
 	public String sendMessage(@RequestParam String dest, @RequestParam String msg, HttpSession s) {
 
-		User from = (User) s.getAttribute("user");
-		from = entityManager.find(User.class, from.getId());
-		User to = UserQueries.findWithName(entityManager, dest);
-
-		if (to == null) {
-			// No existe ese destinatario
-
+		User emisor = (User)s.getAttribute("user");
+		emisor = entityManager.find(User.class, emisor.getId());
+		
+		User receptor = UserQueries.findWithName(entityManager, dest);
+		
+		
+		if (receptor == null) {
 			return "redirect:/";
 		}
+		
+		receptor = entityManager.find(User.class, receptor.getId());
 
 		Correo nuevo = new Correo();
-		nuevo.setAuthor(from);
-		nuevo.setDestinatario(to);
+		nuevo.setAuthor(emisor);
+		nuevo.setDestinatario(receptor);
 		nuevo.setMessage(Jsoup.parse(msg).text());
 
 		entityManager.persist(nuevo);
 		entityManager.flush();
 
-		from.getBandeja().add(nuevo);
-		to.getBandeja().add(nuevo);
+		emisor.getBandeja().add(nuevo);
+		receptor.getBandeja().add(nuevo);
 
-		logger.info("El nuevo mensaje es de: " + nuevo.getAuthor().getName() + " para "
-				+ nuevo.getDestinatario().getName());
-
+		logger.info("The new message is from : " + nuevo.getAuthor().getName() + " to " + nuevo.getDestinatario().getName());
+		
+		logger.info("Sender -1- " + emisor.getBandeja().get(0).getAuthor().getName() + 
+				" to " + emisor.getBandeja().get(0).getDestinatario().getName());
+	
+		logger.info("Receptor -1- " + receptor.getBandeja().get(0).getAuthor().getName() + 
+				" to " + receptor.getBandeja().get(0).getDestinatario().getName());
+		
+		/*
+		logger.info("Emisor -2- " + emisor.getInbox().get(0).getAuthor() + 
+				" para " + emisor.getInbox().get(0).getDestinatario().getName());
+		
+		logger.info("Receptor -2- " + emisor.getOutbox().get(0).getAuthor().getName() + 
+				" para " + emisor.getOutbox().get(0).getDestinatario().getName());
+		*/
+		
 		return "redirect:/bandeja";
 	}
 
