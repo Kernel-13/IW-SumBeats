@@ -11,8 +11,7 @@
 	type="text/javascript"></script>
 <link rel="stylesheet" type="text/css"
 	href="../static/css/abcjs-midi.css">
-<link rel="stylesheet" type="text/css"
-	href="../static/css/buttons.css">
+<link rel="stylesheet" type="text/css" href="../static/css/buttons.css">
 <link rel="stylesheet"
 	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 <title>${project.name}</title>
@@ -59,10 +58,20 @@
 						<input type="hidden" name="proyecto" value="${project.id}" /> <input
 							type="hidden" name="${_csrf.parameterName}"
 							value="${_csrf.token}" />
-						<button type="submit" class="btn btn-warning form-control"
-							value="Marcar como Favorito">
-							<span class="glyphicon glyphicon-thumbs-up"></span> Thumbs Up!
-						</button>
+						<c:choose>
+							<c:when test="${!likeable}">
+								<button type="submit" class="btn btn-danger form-control"
+									value="Thumbs Down!">
+									<span class="glyphicon glyphicon-thumbs-down"></span> Thumbs Down!
+								</button>
+							</c:when>
+							<c:otherwise>
+								<button type="submit" class="btn btn-warning form-control"
+									value="Thumbs Up!">
+									<span class="glyphicon glyphicon-thumbs-up"></span> Thumbs Up!
+								</button>
+							</c:otherwise>
+						</c:choose>
 					</form>
 				</div>
 			</div>

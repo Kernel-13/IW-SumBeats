@@ -20,6 +20,8 @@ public class User {
 	private String email;
 	private List<Proyecto> projects;
 	private List<Proyecto> collaborations;
+	private List<Proyecto> liked;
+	
 	private List<User> friends;
 	private Date dateJoined;
 	private Date lastConnected;
@@ -169,4 +171,15 @@ public class User {
 		return filtered;
 	}
 
+
+	@ManyToMany(targetEntity=Proyecto.class)
+	public List<Proyecto> getLiked() {
+		return liked;
+	}
+
+	public void setLiked(List<Proyecto> liked) {
+		this.liked = liked;
+	}
+
+	
 }

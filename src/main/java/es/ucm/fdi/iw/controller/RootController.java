@@ -1,5 +1,8 @@
 package es.ucm.fdi.iw.controller;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.security.Principal;
 import java.util.List;
 import java.util.ArrayList;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.HtmlUtils;
 
 import es.ucm.fdi.iw.model.Comentario;
@@ -157,8 +161,7 @@ public class RootController {
 	}
 
 	@GetMapping("/error")
-	public String error(String error, Model m) {
-		m.addAttribute("err", error);
+	public String error() {
 		return "error";
 	}
 
@@ -170,17 +173,24 @@ public class RootController {
 	@GetMapping("/project/{proyecto}")
 	// @Transactional
 	public String project(@PathVariable String proyecto, Model m, HttpSession s) {
-		// para poder tener proyectos con espacios en el nombre
-		proyecto = proyecto.replace('_', ' ');
 
-		Proyecto pro = ProyectoQueries.findWithName(entityManager, proyecto);
-		if (pro == null) {
+		proyecto = proyecto.replace('_', ' '); // Para poder tener proyectos con
+												// espacios en el nombre
+		Proyecto p = ProyectoQueries.findWithName(entityManager, proyecto);
+
+		User u = (User) s.getAttribute("user");
+		u = entityManager.find(User.class, u.getId());
+
+		if (p == null) {
 			// TRATAMIENTO DE ERRORES
 
 			return "redirect:/";
 		}
 
-		m.addAttribute("project", pro);
+		boolean likeable = !u.getLiked().contains(p);
+
+		m.addAttribute("project", p);
+		m.addAttribute("likeable", likeable);
 		m.addAttribute("us", ((User) s.getAttribute("user")).getName());
 		return "project";
 	}
@@ -303,7 +313,8 @@ public class RootController {
 			return "redirect:/project/" + p.getName().replace(' ', '_');
 		}
 
-		// También comprobamos que quien ha mandado la petición ha sido el creador del proyecto
+		// También comprobamos que quien ha mandado la petición ha sido el
+		// creador del proyecto
 		User creador = (User) s.getAttribute("user");
 		creador = entityManager.find(User.class, creador.getId());
 
@@ -313,7 +324,8 @@ public class RootController {
 			return "redirect:/";
 		}
 
-		// Por último hay que mirar que no estuviese ya registrado como colaborador
+		// Por último hay que mirar que no estuviese ya registrado como
+		// colaborador
 		if (p.isCollaborator(colab)) {
 			// Ese colaborador ya está registrado
 			logger.info("Nombre de colaborador ya registrado");
@@ -325,7 +337,7 @@ public class RootController {
 
 		logger.info("Redirigido. ¿TODO BIEN?");
 		logger.info("num colaboradores:" + p.getCollaborators().size());
-		
+
 		return "redirect:/project/" + p.getName().replace(' ', '_');
 
 	}
@@ -487,6 +499,13 @@ public class RootController {
 			logger.info("Colaboracion Borrada de Usuario " + ux.getName());
 		}
 
+		while (!p.getLovers().isEmpty()) {
+			User ux = entityManager.find(User.class, p.getLovers().get(0).getId());
+			ux.getLiked().remove(p);
+			p.getLovers().remove(0);
+			logger.info("Like Borrado de Usuario " + ux.getName());
+		}
+
 		while (!p.getComments().isEmpty()) {
 			Comentario c = entityManager.find(Comentario.class, p.getComments().get(0).getId());
 			entityManager.remove(c);
@@ -541,8 +560,10 @@ public class RootController {
 
 	@RequestMapping(value = "/addLike", method = RequestMethod.POST)
 	@Transactional
-	public String addLike(@RequestParam long proyecto) {
+	public String addLike(@RequestParam long proyecto, HttpSession s) {
 
+		User u = (User) s.getAttribute("user");
+		u = entityManager.find(User.class, u.getId());
 		Proyecto p = entityManager.find(Proyecto.class, proyecto);
 
 		if (p == null) {
@@ -550,10 +571,47 @@ public class RootController {
 			return "redirect:/";
 		}
 
-		p.setGlobalRating(p.getGlobalRating() + 1);
-		p.setWeekRating(p.getWeekRating() + 1);
+		if (!u.getLiked().contains(p)) {
+			u.getLiked().add(p);
+			p.setGlobalRating(p.getGlobalRating() + 1);
+			p.setWeekRating(p.getWeekRating() + 1);
+		} else {
+			u.getLiked().remove(p);
+			p.setGlobalRating(p.getGlobalRating() - 1);
+			p.setWeekRating(p.getWeekRating() - 1);
+		}
 
 		return "redirect:/project/" + p.getName();
+	}
+
+	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
+	public @ResponseBody String uploadFileHandler(@RequestParam("file") MultipartFile file) {
+
+		if (!file.isEmpty()) {
+			try {
+				byte[] bytes = file.getBytes();
+
+				// Creating the directory to store file
+				String rootPath = System.getProperty("catalina.home");
+				File dir = new File(rootPath + File.separator + "tmpFiles");
+				if (!dir.exists())
+					dir.mkdirs();
+
+				// Create the file on server
+				File serverFile = new File(dir.getAbsolutePath() + File.separator);
+				BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
+				stream.write(bytes);
+				stream.close();
+
+				logger.info("Server File Location=" + serverFile.getAbsolutePath());
+
+				return "You successfully uploaded file";
+			} catch (Exception e) {
+				return "You failed to upload => " + e.getMessage();
+			}
+		} else {
+			return "You failed to upload because the file was empty.";
+		}
 	}
 
 	// Ejemplo : Reconocimiento de Usuario
@@ -631,12 +689,12 @@ public class RootController {
 	@GetMapping("/bandeja")
 	public String bandeja(HttpSession s, Model m) {
 		User u = entityManager.find(User.class, ((User) s.getAttribute("user")).getId());
-		
+
 		logger.info("====== All Mail -- Nº Messages : " + u.getBandeja().size() + " ======");
 		for (Correo c : u.getBandeja()) {
 			logger.info("--- From: " + c.getAuthor().getName() + "--- To: " + c.getDestinatario().getName());
 		}
-		
+
 		logger.info("====== Inbox -- Nº Messages : " + u.getInbox().size() + " ======");
 		for (Correo c : u.getInbox()) {
 			logger.info("--- From: " + c.getAuthor().getName() + "--- To: " + c.getDestinatario().getName());
@@ -646,10 +704,10 @@ public class RootController {
 		for (Correo c : u.getOutbox()) {
 			logger.info("--- From: " + c.getAuthor().getName() + "--- To: " + c.getDestinatario().getName());
 		}
-		
+
 		m.addAttribute("input", u.getInbox());
 		m.addAttribute("output", u.getOutbox());
-		
+
 		return "bandeja";
 	}
 
@@ -657,15 +715,15 @@ public class RootController {
 	@Transactional
 	public String sendMessage(@RequestParam String dest, @RequestParam String msg, HttpSession s) {
 
-		User emisor = (User)s.getAttribute("user");
+		User emisor = (User) s.getAttribute("user");
 		emisor = entityManager.find(User.class, emisor.getId());
-		
+
 		User receptor = UserQueries.findWithName(entityManager, dest);
-		
+
 		if (receptor == null) {
 			return "redirect:/";
 		}
-		
+
 		receptor = entityManager.find(User.class, receptor.getId());
 
 		Correo nuevo = new Correo();
@@ -678,12 +736,12 @@ public class RootController {
 
 		emisor.getBandeja().add(nuevo);
 		receptor.getBandeja().add(nuevo);
-		
+
 		logger.info("====== New Message Created! ======");
 		logger.info("From: " + nuevo.getAuthor().getName());
 		logger.info("To: " + nuevo.getDestinatario().getName());
-		logger.info("Message: "	+ nuevo.getMessage());
-	
+		logger.info("Message: " + nuevo.getMessage());
+
 		return "redirect:/bandeja";
 	}
 

@@ -16,6 +16,7 @@ public class Proyecto {
 	
 	private User author;
 	private List<User> collaborators;
+	private List<User> lovers;
 	private List<Track> tracks;
 	private List<Comentario> comments;
 	private int weekRating;
@@ -127,5 +128,14 @@ public class Proyecto {
 		return collaborators.contains(co);
 		
 		
+	}
+
+	@ManyToMany(targetEntity=User.class, mappedBy="liked")
+	public List<User> getLovers() {
+		return lovers;
+	}
+
+	public void setLovers(List<User> lovers) {
+		this.lovers = lovers;
 	}
 }
