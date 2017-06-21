@@ -153,7 +153,7 @@ public class User {
 	public List<Correo> getOutbox() {
 		List<Correo> filtered = new ArrayList<Correo>();
 		for (Correo c : bandeja) {
-			if (c.getAuthor().equals(this)) 
+			if (c.getAuthor().getId() == this.id) 
 				filtered.add(c);
 		}
 		return filtered;
@@ -163,7 +163,7 @@ public class User {
 	public List<Correo> getInbox() {
 		List<Correo> filtered = new ArrayList<Correo>();
 		for (Correo c : bandeja) {
-			if (c.getDestinatario().equals(this)) 
+			if (c.getDestinatario().getId() == this.id) 
 				filtered.add(c);
 		}
 		return filtered;

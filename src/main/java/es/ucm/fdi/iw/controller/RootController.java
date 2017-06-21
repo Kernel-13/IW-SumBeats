@@ -632,21 +632,19 @@ public class RootController {
 	public String bandeja(HttpSession s, Model m) {
 		User u = entityManager.find(User.class, ((User) s.getAttribute("user")).getId());
 		
-		logger.info("Bandeja general -- Nº Messages : " + u.getBandeja().size());
+		logger.info("====== All Mail -- Nº Messages : " + u.getBandeja().size() + " ======");
 		for (Correo c : u.getBandeja()) {
-			logger.info("Sender: " + c.getAuthor().getName());
-			logger.info("Receptor: " + c.getDestinatario().getName());
-		}
-		logger.info("Inbox -- Nº Messages : " + u.getInbox().size());
-		for (Correo c : u.getInbox()) {
-			logger.info("From: " + c.getAuthor().getName() + " to " + c.getDestinatario().getName() + ". Message: "
-					+ c.getMessage());
+			logger.info("--- From: " + c.getAuthor().getName() + "--- To: " + c.getDestinatario().getName());
 		}
 		
-		logger.info("Outbox -- Nº Messages : " + u.getOutbox().size());
+		logger.info("====== Inbox -- Nº Messages : " + u.getInbox().size() + " ======");
+		for (Correo c : u.getInbox()) {
+			logger.info("--- From: " + c.getAuthor().getName() + "--- To: " + c.getDestinatario().getName());
+		}
+
+		logger.info("====== Outbox -- Nº Messages : " + u.getOutbox().size() + " ======");
 		for (Correo c : u.getOutbox()) {
-			logger.info("From: " + c.getAuthor().getName() + " to " + c.getDestinatario().getName() + ". Message: "
-					+ c.getMessage());
+			logger.info("--- From: " + c.getAuthor().getName() + "--- To: " + c.getDestinatario().getName());
 		}
 		
 		m.addAttribute("input", u.getInbox());
@@ -664,7 +662,6 @@ public class RootController {
 		
 		User receptor = UserQueries.findWithName(entityManager, dest);
 		
-		
 		if (receptor == null) {
 			return "redirect:/";
 		}
@@ -681,23 +678,12 @@ public class RootController {
 
 		emisor.getBandeja().add(nuevo);
 		receptor.getBandeja().add(nuevo);
-
-		logger.info("The new message is from : " + nuevo.getAuthor().getName() + " to " + nuevo.getDestinatario().getName());
 		
-		logger.info("Sender -1- " + emisor.getBandeja().get(0).getAuthor().getName() + 
-				" to " + emisor.getBandeja().get(0).getDestinatario().getName());
+		logger.info("====== New Message Created! ======");
+		logger.info("From: " + nuevo.getAuthor().getName());
+		logger.info("To: " + nuevo.getDestinatario().getName());
+		logger.info("Message: "	+ nuevo.getMessage());
 	
-		logger.info("Receptor -1- " + receptor.getBandeja().get(0).getAuthor().getName() + 
-				" to " + receptor.getBandeja().get(0).getDestinatario().getName());
-		
-		/*
-		logger.info("Emisor -2- " + emisor.getInbox().get(0).getAuthor() + 
-				" para " + emisor.getInbox().get(0).getDestinatario().getName());
-		
-		logger.info("Receptor -2- " + emisor.getOutbox().get(0).getAuthor().getName() + 
-				" para " + emisor.getOutbox().get(0).getDestinatario().getName());
-		*/
-		
 		return "redirect:/bandeja";
 	}
 
