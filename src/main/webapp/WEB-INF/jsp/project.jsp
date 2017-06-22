@@ -62,7 +62,8 @@
 							<c:when test="${!likeable}">
 								<button type="submit" class="btn btn-danger form-control"
 									value="Thumbs Down!">
-									<span class="glyphicon glyphicon-thumbs-down"></span> Thumbs Down!
+									<span class="glyphicon glyphicon-thumbs-down"></span> Thumbs
+									Down!
 								</button>
 							</c:when>
 							<c:otherwise>
@@ -136,6 +137,14 @@
 		<div class="row">
 			<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12">
 				<h4>Recursos:</h4>
+			</div>
+			<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12"
+				style="line-height: 50px; height: 50px;">
+				<textarea class="hidden" id="combined">	${combined} </textarea>
+				<div class='hidden' id='warningsCombined'></div>
+				<div class='hidden' id='paperCombined'></div>
+				<div class='hidden' id='midi_downloadCombined'></div>
+				<div style='width: 100%; margin-top: 5px;' id='midiCombined'></div>
 			</div>
 			<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12">
 				<div class="row">
@@ -320,6 +329,23 @@
 					}
 				});
 			}
+
+			new ABCJS.Editor("combined", {
+				paper_id : "paperCombined",
+				generate_midi : true,
+				midi_id : "midiCombined",
+				midi_download_id : "midi-downloadCombined",
+				generate_warnings : true,
+				warnings_id : "warningsCombined",
+				midi_options : {
+					generateDownload : true
+				},
+				render_options : {
+					listener : {
+						highlight : selectionCallback
+					}
+				}
+			});
 
 			var list = document.getElementsByClassName('abcjs-midi-clock');
 			for (var j = 0; j < list.length; j++) {

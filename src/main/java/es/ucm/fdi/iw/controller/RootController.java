@@ -43,8 +43,6 @@ import es.ucm.fdi.iw.model.UserQueries;
 public class RootController {
 
 	private static final Logger logger = LoggerFactory.getLogger(RootController.class);
-	// private static final HtmlEscapeStringEditor sanitizer = new
-	// HtmlEscapeStringEditor();
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -189,8 +187,38 @@ public class RootController {
 
 		boolean likeable = !u.getLiked().contains(p);
 
+		
+		String combined = "";
+		if (!p.getTracks().isEmpty()) {
+			String allTracks = "";
+			String header = "";
+			boolean headerFilled = false;
+			int voice = 1;
+			for (Track t : p.getTracks()) {
+				boolean notationFound = false;
+				String aux = t.getAbc();
+				for (char ch : aux.toCharArray()) {
+					if (ch == '|' && !notationFound) {
+						notationFound = true;
+						allTracks += "V:" + voice + "\n";
+					}
+					if (notationFound) {
+						allTracks += ch;
+					} else {
+						if (!headerFilled) {
+							header += ch;
+						}
+					}
+				}
+				headerFilled = true;
+				voice++;
+			}
+			combined = header + allTracks;
+		}
+		
 		m.addAttribute("project", p);
 		m.addAttribute("likeable", likeable);
+		m.addAttribute("combined", combined);
 		m.addAttribute("us", ((User) s.getAttribute("user")).getName());
 		return "project";
 	}
@@ -405,7 +433,7 @@ public class RootController {
 		}
 
 		// t.setAbc(HtmlUtils.htmlEscape(abc.trim()));
-		t.setAbc(Jsoup.parse(abc).text());
+		t.setAbc(abc);
 
 		if (t.getStatus() == Track.ACTIVE) {
 			return "redirect:/project/" + t.getProject().getName().replace(' ', '_');
