@@ -19,7 +19,7 @@
 				</div>
 				<c:forEach items="${lista}" var="c">
 					<div class="trendy">
-						<a href="project/${c.name}"><img alt="res1" src="static/img/logPro.png"></a>
+						<a href="project/${c.name}"><img alt="res1" src="static/img/${c.icon}.jpg"></a>
 						<div class="search-text">
 							<h3><a href="project/${fn:replace(c.name,' ','_')}">${c.name}</a></h3>
 							<p>${c.desc}</p>

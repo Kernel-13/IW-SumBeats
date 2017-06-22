@@ -129,14 +129,18 @@ public class RootController {
 	}
 
 	@GetMapping("/addUser")
-	public String addUser() {
+	public String addUser(Model m) {
+		m.addAttribute("n", 20);
 		return "addUser";
 	}
 
 	@RequestMapping(value = "/addUser", method = RequestMethod.POST)
 	@Transactional
-	public String addUser(@RequestParam(required = true) String name, @RequestParam(required = true) String email,
-			@RequestParam(required = true) String pass, @RequestParam(required = true) String desc) {
+	public String addUser(@RequestParam(required = true) String name, 
+			@RequestParam(required = true) String email,
+			@RequestParam(required = true) String pass, 
+			@RequestParam(required = true) String desc,
+			@RequestParam(required = true) int foto ) {
 
 		if (!UserQueries.nameAvailable(entityManager, name) || !UserQueries.emailAvailable(entityManager, email)) {
 			return "redirect:/home";
@@ -147,7 +151,8 @@ public class RootController {
 		u.setName(newName);
 		u.setEmail(HtmlUtils.htmlEscape(email.trim()));
 		u.setPassword(passwordEncoder.encode(pass));
-
+		u.setIcon(foto);
+		
 		u.setDescription(Jsoup.parse(desc).text());
 
 		u.setRoles("USER");
@@ -281,7 +286,8 @@ public class RootController {
 	}
 
 	@GetMapping("/addProject")
-	public String addProject() {
+	public String addProject(Model m) {
+		m.addAttribute("n", 20);
 		return "addProject";
 	}
 
@@ -289,7 +295,7 @@ public class RootController {
 	@RequestMapping(value = "/addProject", method = RequestMethod.POST)
 	@Transactional
 	public String addProject(@RequestParam(required = true) String title, @RequestParam(required = true) String desc,
-			HttpSession s) {
+			@RequestParam(required = true) int foto, HttpSession s) {
 		if (!ProyectoQueries.nameAvailable(entityManager, title)) {
 			// Si ya hay un proyecto con ese nombre
 
@@ -303,6 +309,7 @@ public class RootController {
 		proy.setName(Jsoup.parse(title).text());
 		proy.setDesc(Jsoup.parse(desc).text());
 		proy.setAuthor(usuario);
+		proy.setIcon(foto);
 
 		this.entityManager.persist(proy);
 		logger.info("Proyecto agregado a la BD. Nombre de proyecto: " + title + ". Autor: " + usuario.getName());
@@ -570,16 +577,18 @@ public class RootController {
 		User u = (User) s.getAttribute("user");
 		u = entityManager.find(User.class, u.getId());
 		m.addAttribute("user", u);
+		m.addAttribute("n", 20);
 		return "customization";
 	}
 
 	@RequestMapping(value = "/customization", method = RequestMethod.POST)
 	@Transactional
-	public String changeInfo(@RequestParam String desc, HttpSession s) {
+	public String changeInfo(@RequestParam String desc, @RequestParam int foto, HttpSession s) {
 
 		User u = (User) s.getAttribute("user");
 		u = entityManager.find(User.class, u.getId());
 		u.setDescription(Jsoup.parse(desc).text());
+		u.setIcon(foto);
 		logger.info("Descripcion Modificada");
 
 		return "redirect:/user/" + u.getName().replace(' ', '_');

@@ -21,7 +21,7 @@
 	<div class="container illust-container">
 		<div class="row">
 			<div class="col-lx-10 col-md-10 col-sm-8 col-xs-8 project-info">
-				<img alt="p-img" src="../static/img/logPro.png">
+				<img alt="p-img" class="img-circle" src="../static/img/${project.icon}.jpg">
 				<div class="search-text">
 					<h3>${project.name}
 						by <a href="/user/${project.author.getName()}">${project.author.getName()}</a>
@@ -106,7 +106,7 @@
 				<c:forEach items="${project.collaborators}" var="c">
 					<div class="col-lx-2 col-md-2 col-sm-2 col-xs-2">
 						<a href="/user/${c.name}"><img alt="pr1"
-							src="../static/img/logUsu.png" class="img-responsive"
+							class="img-circle" src="../static/img/${c.icon}.jpg" class="img-responsive"
 							style="max-height: 100px; margin: auto;" /></a>
 						<div class="caption">
 							<p>

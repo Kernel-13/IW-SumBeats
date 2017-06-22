@@ -9,6 +9,7 @@
 <%@ include file="../jspf/head.jspf"%>
 <link rel="stylesheet" type="text/css" href="../static/css/main.css">
 <title>${user.name}</title>
+
 </head>
 <body>
 	<%@ include file="../jspf/navbar.jspf"%>
@@ -22,7 +23,7 @@
 			<div class="row">
 				<div class="col-sm-12 user-profile">
 					<div style="text-align: center; margin-bottom: 50px;">
-						<img alt="user_profile_pic" src="../static/img/logUsu.png">
+						<img alt="user_profile_pic" class="img-circle" src="../static/img/${user.icon}.jpg">
 						<h3>${user.name}</h3>
 						<p>${user.description}</p>
 						<hr width="50%">
@@ -34,7 +35,7 @@
 					<div class="col-sm-3">
 						<div class="project-view">
 							<a href="/project/${fn:replace(c.name,' ','_') }"><img alt="pr1"
-								src="../static/img/logPro.png"></a>
+								class="img-circle" src="../static/img/${c.icon}.jpg"></a>
 							<div class="caption">
 								<p>${c.name}</p>
 							</div>

@@ -28,6 +28,7 @@ public class User {
 	private List<Correo> bandeja;
 	private String roles;
 	private List<Track> tracks;
+	private int icon;
 	
 	public User(){}
 	
@@ -179,6 +180,14 @@ public class User {
 
 	public void setLiked(List<Proyecto> liked) {
 		this.liked = liked;
+	}
+
+	public int getIcon() {
+		return icon;
+	}
+
+	public void setIcon(int icon) {
+		this.icon = icon;
 	}
 
 	

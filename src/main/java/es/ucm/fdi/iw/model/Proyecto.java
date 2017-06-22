@@ -21,6 +21,7 @@ public class Proyecto {
 	private List<Comentario> comments;
 	private int weekRating;
 	private int globalRating;
+	private int icon;
 	
 	public Proyecto(){}
 	
@@ -137,5 +138,13 @@ public class Proyecto {
 
 	public void setLovers(List<User> lovers) {
 		this.lovers = lovers;
+	}
+
+	public int getIcon() {
+		return icon;
+	}
+
+	public void setIcon(int icon) {
+		this.icon = icon;
 	}
 }
