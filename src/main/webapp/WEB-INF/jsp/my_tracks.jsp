@@ -26,8 +26,8 @@
 					<c:forEach items="${lista}" var="t">
 						<tr>
 							<td>${t.name}</td>
-							<td><a href="/project/${t.project.name}">${t.project.name}</a></td>
-							<td><a href="/user/${t.project.author.name}">${t.project.author.name}</a></td>
+							<td><a href="/project/${t.project.safeName()}">${t.project.name}</a></td>
+							<td><a href="/user/${t.project.author.safeName()}">${t.project.author.name}</a></td>
 							<td>${t.status}</td>
 							<td>
 								<div>

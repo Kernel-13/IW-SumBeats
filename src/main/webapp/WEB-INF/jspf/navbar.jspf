@@ -43,7 +43,7 @@
 						data-toggle="dropdown" href="#"> <sec:authentication
 								property="principal.username" /> <span class="caret"></span></a>
 						<ul class="dropdown-menu">
-							<li><a
+							<li><a id="nav-username"
 								href="/user/<sec:authentication property="principal.username" />">
 									Mi Perfil</a></li>
 							<li><a href="/bandeja"> Mis Mensajes</a></li>
@@ -56,4 +56,16 @@
 		</div>
 	</div>
 	<!-- <b>${user}</b> -->
+	<script>
+		var username = document.getElementById("nav-username");
+		var notSafe = username.getAttribute("href");
+
+		var elements = notSafe.split("/");
+		var name = elements.pop();
+
+		var res = encodeURIComponent(name);
+		var safeName = "/user/" + res;
+
+		document.getElementById("nav-username").href = safeName;
+	</script>
 </nav>

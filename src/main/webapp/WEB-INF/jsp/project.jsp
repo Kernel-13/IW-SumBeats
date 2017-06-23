@@ -25,7 +25,7 @@
 					src="../static/img/${project.icon}.jpg">
 				<div class="search-text">
 					<h3>${project.name}
-						by <a href="/user/${project.author.getName()}">${project.author.getName()}</a>
+						by <a href="/user/${project.author.safeName()}">${project.author.getName()}</a>
 					</h3>
 					<p>${project.desc}</p>
 				</div>
@@ -44,9 +44,9 @@
 							Opciones <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu">
-							<li><a href="${project.name}/pendingTracks">Tracks
+							<li><a href="${project.safeName()}/pendingTracks">Tracks
 									Pendientes</a></li>
-							<li><a href="${project.name}/editProject">Modificar Projecto</a></li>
+							<li><a href="${project.safeName()}/editProject">Modificar Projecto</a></li>
 							<li style="text-align: center;">
 								<form action="/deleteProject" method="post">
 									<input type="hidden" name="proyecto" value="${project.id}" />
@@ -111,12 +111,12 @@
 			<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12 collaborators">
 				<c:forEach items="${project.collaborators}" var="c">
 					<div class="col-lx-2 col-md-2 col-sm-2 col-xs-2">
-						<a href="/user/${c.name}"><img alt="pr1" class="img-circle"
+						<a href="/user/${c.safeName()}"><img alt="pr1" class="img-circle"
 							src="../static/img/${c.icon}.jpg" class="img-responsive"
 							style="max-height: 100px; margin: auto;" /></a>
 						<div class="caption">
 							<p>
-								<a href="/user/${c.name}">${c.name}</a>
+								<a href="/user/${c.safeName()}">${c.name}</a>
 							</p>
 						</div>
 						<c:if test="${project.author.name == us}">
@@ -166,7 +166,7 @@
 								style="line-height: 50px; height: 50px; overflow: hidden;">
 								<a href="../editor/${t.id}"
 									style="color: ghostwhite; font-size: 20px;">"${t.name}"</a> <a
-									href="../user/${t.creator.name}"
+									href="../user/${t.creator.safeName()}"
 									style="color: gray; font-size: 16px;">by ${t.creator.name}</a>
 							</div>
 							<div class="col-lx-3 col-md-3 col-sm-3 col-xs-3"
@@ -263,7 +263,7 @@
 						<div class="col-lx-9 col-md-9 col-sm-9 col-xs-9"
 							style="height: 50px; overflow: hidden;">
 							<p style="color: ghostwhite; font-size: 18px">
-								<a href="../user/${x.autor.name}"
+								<a href="../user/${x.autor.safeName()}"
 									style="color: gray; font-size: 16px;">${x.autor.name}</a> <span
 									style="color: gray; font-size: 16px;">comentó:</span>
 								${x.message}

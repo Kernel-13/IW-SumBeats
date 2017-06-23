@@ -19,9 +19,9 @@
 				</div>
 				<c:forEach items="${lista}" var="c">
 					<div class="trendy">
-						<a href="project/${c.name}"><img alt="res1" src="static/img/${c.icon}.jpg"></a>
+						<a href="project/${c.safeName()}"><img alt="res1" src="static/img/${c.icon}.jpg"></a>
 						<div class="search-text">
-							<h3><a href="project/${fn:replace(c.name,' ','_')}">${c.name}</a></h3>
+							<h3><a href="project/${c.safeName()}">${c.name}</a></h3>
 							<p>${c.desc}</p>
 							<h4 style="color:burlywood; font-weight: bold;">Points: ${c.weekRating}</h4>
 						</div>

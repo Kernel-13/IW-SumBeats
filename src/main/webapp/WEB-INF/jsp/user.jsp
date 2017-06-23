@@ -34,7 +34,7 @@
 				<c:forEach items="${lista}" var="c">
 					<div class="col-sm-3">
 						<div class="project-view">
-							<a href="/project/${fn:replace(c.name,' ','_') }"><img alt="pr1"
+							<a href="/project/${c.safeName() }"><img alt="pr1"
 								class="img-circle" src="../static/img/${c.icon}.jpg"></a>
 							<div class="caption">
 								<p>${c.name}</p>

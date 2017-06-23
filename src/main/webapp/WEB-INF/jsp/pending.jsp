@@ -22,7 +22,7 @@
 	<div class="container illust-container">
 		<div class="row">
 			<div class="col-sm-10 project-info">
-				<img alt="p-img" src="../../static/img/logPro.png">
+				<img alt="p-img" src="../../static/img/${project.icon}.jpg">
 				<div class="search-text">
 					<h3>${project.name}</h3>
 					<p>${project.desc}</p>
@@ -49,7 +49,7 @@
 							<div class="col-lx-6 col-md-6 col-sm-6 col-xs-6"
 								style="line-height: 50px; height: 50px; overflow: hidden;">
 								<a href="/editor/${t.id}" style="color: ghostwhite; font-size: 22px;">"${t.name}"</a> 
-								<a href="/user/${t.creator.name}" style="color: gray; font-size: 16px;">by ${t.creator.name}</a>
+								<a href="/user/${t.creator.safeName()}" style="color: gray; font-size: 16px;">by ${t.creator.name}</a>
 							</div>
 							<div class="col-lx-3 col-md-3 col-sm-3 col-xs-3"
 								style="line-height: 50px; height: 50px;">

@@ -1,5 +1,7 @@
 package es.ucm.fdi.iw.model;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -123,12 +125,7 @@ public class Proyecto {
 		this.comments = comments;
 	}
 	public boolean isCollaborator(User co){
-//		if(collaborators.isEmpty()){
-//			return false;
-		//REDUNDANTE
-		return collaborators.contains(co);
-		
-		
+		return collaborators.contains(co);		
 	}
 
 	@ManyToMany(targetEntity=User.class, mappedBy="liked")
@@ -146,5 +143,15 @@ public class Proyecto {
 
 	public void setIcon(int icon) {
 		this.icon = icon;
+	}
+	
+	public String safeName(){
+		String safeURL = "";
+		try {
+			safeURL = URLEncoder.encode(this.name, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return safeURL;
 	}
 }

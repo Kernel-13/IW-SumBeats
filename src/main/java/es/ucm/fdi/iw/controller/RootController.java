@@ -3,6 +3,7 @@ package es.ucm.fdi.iw.controller;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -34,7 +35,7 @@ import es.ucm.fdi.iw.model.Track;
 import es.ucm.fdi.iw.model.TrackQueries;
 import es.ucm.fdi.iw.model.User;
 import es.ucm.fdi.iw.model.UserQueries;
-import scala.annotation.meta.getter;
+import java.net.URLDecoder;
 
 @Controller
 public class RootController {
@@ -56,6 +57,13 @@ public class RootController {
 
 	@GetMapping({ "/user/{name}", "/profile/{name}" })
 	public String showUsuario(@PathVariable String name, Model m) {
+		
+		try {
+			name = URLDecoder.decode(name, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
 		if (!UserQueries.nameAvailable(entityManager, name)) {
 			User u = UserQueries.findWithName(entityManager, name);
 			List<Proyecto> lista = u.getProjects();
@@ -69,12 +77,6 @@ public class RootController {
 		}
 
 	}
-
-	/*
-	 * @GetMapping("/search") public String search(Model m) { List<Proyecto>
-	 * lista = ProyectoQueries.getProjectSearch(entityManager,"e");
-	 * m.addAttribute("lista", lista); return "search"; }
-	 */
 
 	@RequestMapping(value = "/search")
 	public String search(@RequestParam("busqueda") String busqueda, Model m) {
@@ -90,11 +92,6 @@ public class RootController {
 		List<Proyecto> lista = ProyectoQueries.getTrendy(entityManager);
 		m.addAttribute("lista", lista);
 		return "trendy";
-	}
-
-	@GetMapping("/studio")
-	public String studio() {
-		return "studio";
 	}
 
 	@GetMapping("/editor/{t}")
@@ -169,19 +166,20 @@ public class RootController {
 	}
 
 	@GetMapping("/project/{proyecto}")
-	// @Transactional
 	public String project(@PathVariable String proyecto, Model m, HttpSession s) {
 
-		proyecto = proyecto.replace('_', ' '); // Para poder tener proyectos con
-												// espacios en el nombre
+		try {	
+			proyecto = URLDecoder.decode(proyecto, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
 		Proyecto p = ProyectoQueries.findWithName(entityManager, proyecto);
 
 		User u = (User) s.getAttribute("user");
 		u = entityManager.find(User.class, u.getId());
 
 		if (p == null) {
-			// TRATAMIENTO DE ERRORES
-
 			return "redirect:/";
 		}
 
@@ -224,20 +222,20 @@ public class RootController {
 
 	@GetMapping("/project/{proyecto}/pendingTracks")
 	public String pending(@PathVariable String proyecto, Model m, HttpSession s) {
-		// para poder tener proyectos con espacios en el nombre
-		proyecto = proyecto.replace('_', ' ');
 
+		try {
+			proyecto = URLDecoder.decode(proyecto, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
 		Proyecto pro = ProyectoQueries.findWithName(entityManager, proyecto);
 		if (pro == null) {
-			// TRATAMIENTO DE ERRORES
-
 			return "redirect:/";
 		}
 
 		User u = (User) s.getAttribute("user");
 		if (pro.getAuthor().getId() != u.getId()) {
-			// no puedes ver tracks pendientes de un proyecto que no es tuyo
-
 			return "redirect:/";
 		}
 
@@ -248,7 +246,12 @@ public class RootController {
 	@GetMapping("/project/{proyecto}/editProject")
 	public String editProject(@PathVariable String proyecto, Model m, HttpSession s) {
 
-		proyecto = proyecto.replace('_', ' ');
+		try {
+			proyecto = URLDecoder.decode(proyecto, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
 		Proyecto pro = ProyectoQueries.findWithName(entityManager, proyecto);
 
 		if (pro == null) {
@@ -290,7 +293,7 @@ public class RootController {
 		logger.info("Proyecto modificado");
 
 		usuario.getProjects().add(proy);
-		return "redirect:/project/" + proy.getName().replace(' ', '_');
+		return "redirect:/project/" + proy.safeName();
 	}
 
 	@RequestMapping(value = "/acceptTrack", method = RequestMethod.POST)
@@ -324,7 +327,7 @@ public class RootController {
 
 		tra.setStatus(Track.ACTIVE);
 
-		return "redirect:/project/" + pro.getName().replace(' ', '_');
+		return "redirect:/project/" + pro.safeName();
 	}
 
 	@GetMapping("/addProject")
@@ -333,17 +336,15 @@ public class RootController {
 		return "addProject";
 	}
 
-	/* CAMBIAR EL USER DEL FORMULARIO A LA SESIÓN */
 	@RequestMapping(value = "/addProject", method = RequestMethod.POST)
 	@Transactional
 	public String addProject(@RequestParam(required = true) String title, @RequestParam(required = true) String desc,
 			@RequestParam(required = true) int foto, HttpSession s) {
+		
 		if (!ProyectoQueries.nameAvailable(entityManager, title)) {
-			// Si ya hay un proyecto con ese nombre
-
 			return "addProject";
 		}
-		// User usuario = UserQueries.findWithName(entityManager, user);
+
 		User usuario = (User) s.getAttribute("user");
 		usuario = entityManager.find(User.class, usuario.getId());
 
@@ -356,15 +357,10 @@ public class RootController {
 		this.entityManager.persist(proy);
 		logger.info("Proyecto agregado a la BD. Nombre de proyecto: " + title + ". Autor: " + usuario.getName());
 
-		// List<Proyecto> proyectos = usuario.getProjects();
-		// proyectos.add(proy);
-		// usuario.setProjects(proyectos);
+
 		usuario.getProjects().add(proy);
-
-		// this.entityManager.persist(usuario);
-
-		// para poder tener proyectos con espacios en el nombre
-		return "redirect:/project/" + proy.getName().replace(' ', '_');
+				
+		return "redirect:/project/" + proy.safeName();
 	}
 
 	@RequestMapping(value = "/addCollaborator", method = RequestMethod.POST)
@@ -415,7 +411,7 @@ public class RootController {
 		logger.info("Redirigido. ¿TODO BIEN?");
 		logger.info("num colaboradores:" + p.getCollaborators().size());
 
-		return "redirect:/project/" + p.getName().replace(' ', '_');
+		return "redirect:/project/" + p.safeName();
 
 	}
 
@@ -485,11 +481,11 @@ public class RootController {
 		t.setAbc(abc);
 
 		if (t.getStatus() == Track.ACTIVE) {
-			return "redirect:/project/" + t.getProject().getName().replace(' ', '_');
+			return "redirect:/project/" + t.getProject().safeName();
 		} else if (t.getStatus() == Track.PENDING && t.getProject().getAuthor().getId() == u.getId()) {
-			return "redirect:/project/" + t.getProject().getName().replace(' ', '_') + "/pendingTracks";
+			return "redirect:/project/" + t.getProject().safeName() + "/pendingTracks";
 		} else {
-			return "redirect:/project/" + t.getProject().getName().replace(' ', '_');
+			return "redirect:/project/" + t.getProject().safeName();
 		}
 	}
 
@@ -516,7 +512,7 @@ public class RootController {
 		entityManager.remove(t);
 		logger.info("Track Borrado - RootController");
 
-		return "redirect:/project/" + p.getName().replace(' ', '_');
+		return "redirect:/project/" + p.safeName();
 	}
 
 	@RequestMapping(value = "/deleteCollaborator", method = RequestMethod.POST)
@@ -545,7 +541,7 @@ public class RootController {
 		uc.getCollaborations().remove(p);
 		logger.info("Colaborador Borrado - RootController");
 
-		return "redirect:/project/" + p.getName().replace(' ', '_');
+		return "redirect:/project/" + p.safeName();
 	}
 
 	@RequestMapping(value = "/deleteProject", method = RequestMethod.POST)
@@ -600,7 +596,7 @@ public class RootController {
 		entityManager.remove(p);
 		logger.info("Proyecto Borrado - RootController.entityManager.remove(p)");
 
-		return "redirect:/user/" + u.getName().replace(' ', '_');
+		return "redirect:/user/" + u.safeName();
 	}
 
 	@GetMapping("/my_tracks")
@@ -633,7 +629,7 @@ public class RootController {
 		u.setIcon(foto);
 		logger.info("Descripcion Modificada");
 
-		return "redirect:/user/" + u.getName().replace(' ', '_');
+		return "redirect:/user/" + u.safeName();
 
 	}
 
@@ -660,7 +656,7 @@ public class RootController {
 			p.setWeekRating(p.getWeekRating() - 1);
 		}
 
-		return "redirect:/project/" + p.getName();
+		return "redirect:/project/" + p.safeName();
 	}
 
 	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
@@ -737,7 +733,7 @@ public class RootController {
 		logger.info("flush completado; nuevo id es " + nueva.getId());
 		p.getComments().add(nueva);
 
-		return "redirect:/project/" + p.getName().replace(' ', '_');
+		return "redirect:/project/" + p.safeName();
 	}
 
 	@RequestMapping(value = "/deleteComent", method = RequestMethod.POST)
@@ -762,17 +758,12 @@ public class RootController {
 		entityManager.remove(t);
 		logger.info("Comentario Borrado - RootController");
 
-		return "redirect:/project/" + p.getName().replace(' ', '_');
+		return "redirect:/project/" + p.safeName();
 	}
 
 	@GetMapping("/bandeja")
 	public String bandeja(HttpSession s, Model m) {
 		User u = entityManager.find(User.class, ((User) s.getAttribute("user")).getId());
-
-		logger.info("====== All Mail -- Nº Messages : " + u.getBandeja().size() + " ======");
-		for (Correo c : u.getBandeja()) {
-			logger.info("--- From: " + c.getAuthor().getName() + "--- To: " + c.getDestinatario().getName());
-		}
 
 		logger.info("====== Inbox -- Nº Messages : " + u.getInbox().size() + " ======");
 		for (Correo c : u.getInbox()) {
@@ -802,9 +793,7 @@ public class RootController {
 		if (receptor == null) {
 			return "redirect:/";
 		}
-
-		receptor = entityManager.find(User.class, receptor.getId());
-
+		
 		Correo nuevo = new Correo();
 		nuevo.setAuthor(emisor);
 		nuevo.setDestinatario(receptor);
@@ -813,8 +802,8 @@ public class RootController {
 		entityManager.persist(nuevo);
 		entityManager.flush();
 
-		emisor.getBandeja().add(nuevo);
-		receptor.getBandeja().add(nuevo);
+		emisor.getOutbox().add(nuevo);
+		receptor.getInbox().add(nuevo);
 
 		logger.info("====== New Message Created! ======");
 		logger.info("From: " + nuevo.getAuthor().getName());
