@@ -12,6 +12,11 @@ a:hover{
     text-decoration: none;
 }
 
+.dropdown-menu a:hover {
+	color: red;
+	text-decoration: none;
+}
+
 body {
   background-color: #303030;
   color: white;

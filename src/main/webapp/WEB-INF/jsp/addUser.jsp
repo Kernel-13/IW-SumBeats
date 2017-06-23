@@ -13,15 +13,18 @@
 <link rel="stylesheet" type="text/css"
 	href="static/css/image-picker.css">
 <script src="static/js/image-picker.js" type="text/javascript"></script>
-<script src="https://code.jquery.com/jquery-3.0.0.min.js" type="text/javascript"></script>
+<script src="https://code.jquery.com/jquery-3.0.0.min.js"
+	type="text/javascript"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/image-picker/0.3.0/image-picker.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/image-picker/0.3.0/image-picker.css" />
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/image-picker/0.3.0/image-picker.js"></script>
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/image-picker/0.3.0/image-picker.css" />
 <title>Registro</title>
 <style type="text/css">
-	.thumbnail img{
-		max-height: 150px;
-	}
+.thumbnail img {
+	max-height: 150px;
+}
 </style>
 </head>
 <body>
@@ -30,7 +33,7 @@
 	<sec:authorize access="isAnonymous()">
 		<div class="container-fluid login">
 			<form class="form-horizontal" action="/addUser" method="post">
-			
+
 				<div class="row form-class" style="width: 500px;">
 					<div class="col-lg-12">
 						<div class="panel panel-info">
@@ -53,9 +56,21 @@
 								<div class="form-group">
 									<div class="col-sm-12">
 										<input name="pass" type="password" class="form-control"
-											id="password" placeholder="Password" required="required"
+											id="password" onchange="correctPassword()"
+											placeholder="Contraseña" required="required" maxlength="255" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-12">
+										<input name="pass2" type="password" class="form-control"
+											id="password2" onchange="correctPassword()"
+											placeholder="Repita la Contraseña" required="required"
 											maxlength="255" />
 									</div>
+								</div>
+								<div class="col-sm-12 form-group" id="wrongPass"
+									style="display: none">
+									<h4>Las contraseñas no son iguales!</h4>
 								</div>
 								<div class="form-group">
 									<div class="col-sm-12">
@@ -68,21 +83,22 @@
 						</div>
 					</div>
 				</div>
-				
+
 				<div class="row form-class" style="width: 942px;">
 					<div class="col-lg-12">
-					<div class="panel panel-info">
+						<div class="panel panel-info">
 							<div class="panel-heading">Escoge tu Imagen:</div>
 							<div class="panel-body">
 								<select class="image-picker" name="foto">
 									<c:forEach var="i" begin="1" end="${n}">
-										<option data-img-src="static/img/${i}.jpg" data-img-alt="${i}" value="${i}">${i}</option>
+										<option data-img-src="static/img/${i}.jpg" data-img-alt="${i}"
+											value="${i}">${i}</option>
 									</c:forEach>
 								</select> <input type="hidden" name="${_csrf.parameterName}"
 									value="${_csrf.token}" />
 								<div class="form-group">
 									<div class="col-sm-12 submitButton">
-										<input type="submit" class="btn btn-success"
+										<input type="submit" id="submit-button" class="btn btn-success"
 											value="Registrarse">
 									</div>
 								</div>
@@ -104,13 +120,33 @@
 		</div>
 	</sec:authorize>
 
-<script type="text/javascript">
+	<script type="text/javascript">
+		$("select").imagepicker({
+			hide_select : true,
+			show_label : false
+		})
+	</script>
 
-$("select").imagepicker({
-    hide_select : true,
-    show_label  : false
-  })
-  </script>
+	<script type="text/javascript">
+		function correctPassword() {
+			var pass1 = document.getElementById("password");
+			var pass2 = document.getElementById("password2");
+			var helpText = document.getElementById("wrongPass");
+			if (pass1.value == pass2.value) {
+				pass1.style.background = "lightgreen";
+				pass2.style.background = "lightgreen";
+				helpText.style.display = "none";
+				helpText.style.color = "black";
+				helpText.style.margin = "5px";
+				document.getElementById("submit-button").disabled = false;
+			} else {
+				pass1.style.background = "navajowhite";
+				pass2.style.background = "navajowhite";
+				helpText.style.display = "initial";
+				document.getElementById("submit-button").disabled = true;
+			}
+		}
+	</script>
 
 </body>
 </html>
