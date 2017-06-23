@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.HtmlUtils;
 
+import es.ucm.fdi.iw.ContextInitializer;
 import es.ucm.fdi.iw.model.Comentario;
 import es.ucm.fdi.iw.model.Correo;
 import es.ucm.fdi.iw.model.Proyecto;
@@ -812,5 +813,32 @@ public class RootController {
 
 		return "redirect:/bandeja";
 	}
+	
+	/**
+	 * Uploads a photo for a user
+	 * @param id of user 
+	 * @param photo to upload
+	 * @return
+	 */
+	@RequestMapping(value="/user", method=RequestMethod.POST)
+    public @ResponseBody String handleFileUpload(@RequestParam("photo") MultipartFile photo,
+    		@RequestParam("id") String id){
+        if (!photo.isEmpty()) {
+            try {
+                byte[] bytes = photo.getBytes();
+                BufferedOutputStream stream =
+                        new BufferedOutputStream(
+                        		new FileOutputStream(ContextInitializer.getFile("user", id)));
+                stream.write(bytes);
+                stream.close();
+                return "You successfully uploaded " + id + 
+                		" into " + ContextInitializer.getFile("user", id).getAbsolutePath() + "!";
+            } catch (Exception e) {
+                return "You failed to upload " + id + " => " + e.getMessage();
+            }
+        } else {
+            return "You failed to upload a photo for " + id + " because the file was empty.";
+        }
+    }
 
 }
