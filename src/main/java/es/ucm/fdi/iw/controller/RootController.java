@@ -34,6 +34,7 @@ import es.ucm.fdi.iw.model.Track;
 import es.ucm.fdi.iw.model.TrackQueries;
 import es.ucm.fdi.iw.model.User;
 import es.ucm.fdi.iw.model.UserQueries;
+import scala.annotation.meta.getter;
 
 @Controller
 public class RootController {
@@ -132,11 +133,9 @@ public class RootController {
 
 	@RequestMapping(value = "/addUser", method = RequestMethod.POST)
 	@Transactional
-	public String addUser(@RequestParam(required = true) String name, 
-			@RequestParam(required = true) String email,
-			@RequestParam(required = true) String pass, 
-			@RequestParam(required = true) String desc,
-			@RequestParam(required = true) int foto ) {
+	public String addUser(@RequestParam(required = true) String name, @RequestParam(required = true) String email,
+			@RequestParam(required = true) String pass, @RequestParam(required = true) String desc,
+			@RequestParam(required = true) int foto) {
 
 		if (!UserQueries.nameAvailable(entityManager, name) || !UserQueries.emailAvailable(entityManager, email)) {
 			return "redirect:/home";
@@ -148,7 +147,7 @@ public class RootController {
 		u.setEmail(HtmlUtils.htmlEscape(email.trim()));
 		u.setPassword(passwordEncoder.encode(pass));
 		u.setIcon(foto);
-		
+
 		u.setDescription(Jsoup.parse(desc).text());
 
 		u.setRoles("USER");
@@ -188,7 +187,6 @@ public class RootController {
 
 		boolean likeable = !u.getLiked().contains(p);
 
-		
 		String combined = "";
 		if (!p.getTracks().isEmpty()) {
 			String allTracks = "";
@@ -216,7 +214,7 @@ public class RootController {
 			}
 			combined = header + allTracks;
 		}
-		
+
 		m.addAttribute("project", p);
 		m.addAttribute("likeable", likeable);
 		m.addAttribute("combined", combined);
@@ -245,6 +243,54 @@ public class RootController {
 
 		m.addAttribute("project", pro);
 		return "pending";
+	}
+
+	@GetMapping("/project/{proyecto}/editProject")
+	public String editProject(@PathVariable String proyecto, Model m, HttpSession s) {
+
+		proyecto = proyecto.replace('_', ' ');
+		Proyecto pro = ProyectoQueries.findWithName(entityManager, proyecto);
+
+		if (pro == null) {
+			return "redirect:/";
+		}
+
+		User u = (User) s.getAttribute("user");
+		if (pro.getAuthor().getId() != u.getId()) {
+			return "redirect:/";
+		}
+		
+		m.addAttribute("n", 20);
+		m.addAttribute("project", pro);
+		return "editProject";
+	}
+
+	@RequestMapping(value = "/changingProject", method = RequestMethod.POST)
+	@Transactional
+	public String changingProject(@RequestParam(required = true) String desc, 
+			@RequestParam(required = true) int foto,
+			@RequestParam(required = true) long id,
+			HttpSession s) {
+
+		User usuario = (User) s.getAttribute("user");
+		usuario = entityManager.find(User.class, usuario.getId());
+
+		
+		Proyecto proy = entityManager.find(Proyecto.class, id);
+		
+
+		if(proy.getAuthor().getId() != usuario.getId()){
+			return "redirect:/";
+		}
+		
+		proy.setDesc(Jsoup.parse(desc).text());
+		proy.setIcon(foto);
+
+		this.entityManager.persist(proy);
+		logger.info("Proyecto modificado");
+
+		usuario.getProjects().add(proy);
+		return "redirect:/project/" + proy.getName().replace(' ', '_');
 	}
 
 	@RequestMapping(value = "/acceptTrack", method = RequestMethod.POST)

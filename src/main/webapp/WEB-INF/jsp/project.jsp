@@ -38,18 +38,20 @@
 				</div>
 				<c:if test="${project.author.name == us}">
 					<div class="dropdown show">
-						<button class="btn btn-info dropdown-toggle col-lx-12 col-md-12 col-sm-12 col-xs-12" type="button"
-							data-toggle="dropdown" style="margin-top: 5px;">
+						<button
+							class="btn btn-info dropdown-toggle col-lx-12 col-md-12 col-sm-12 col-xs-12"
+							type="button" data-toggle="dropdown" style="margin-top: 5px;">
 							Opciones <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu">
 							<li><a href="${project.name}/pendingTracks">Tracks
 									Pendientes</a></li>
+							<li><a href="${project.name}/editProject">Modificar Projecto</a></li>
 							<li style="text-align: center;">
 								<form action="/deleteProject" method="post">
 									<input type="hidden" name="proyecto" value="${project.id}" />
 									<input type="hidden" name="${_csrf.parameterName}"
-										value="${_csrf.token}" /> <a href="#" style="color:red"
+										value="${_csrf.token}" /> <a href="#" style="color: red"
 										onclick="$(this).closest('form').submit()">Borrar Proyecto</a>
 								</form>
 							</li>
