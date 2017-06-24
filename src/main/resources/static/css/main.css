@@ -12,6 +12,14 @@ a:hover{
     text-decoration: none;
 }
 
+.dropdown-menu li {
+    text-align: center;
+}
+
+.dropdown-menu li a:hover {
+    font-weight: bolder;
+}
+
 .dropdown-menu a:hover {
 	color: red;
 	text-decoration: none;
