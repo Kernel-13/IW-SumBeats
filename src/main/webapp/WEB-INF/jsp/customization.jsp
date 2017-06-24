@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css"
 	href="../../static/css/session-style.css">
 <link rel="stylesheet" type="text/css" href="../../static/css/main.css">
-<title>Customization</title>
+<title>Cambio de Descripción</title>
 <link rel="stylesheet" type="text/css"
 	href="static/css/image-picker.css">
 <script src="static/js/image-picker.js" type="text/javascript"></script>
@@ -19,7 +19,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/image-picker/0.3.0/image-picker.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/image-picker/0.3.0/image-picker.css" />
-<title>Registro</title>
 <style type="text/css">
 	.thumbnail img{
 		max-height: 150px;
@@ -44,22 +43,7 @@
 										maxlength="500">${user.description}</textarea>
 								</div>
 							</div>
-						
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="row form-class" style="width: 942px;">
-				<div class="col-lg-12">
-					<div class="panel panel-info">
-						<div class="panel-heading">Escoge tu Imagen:</div>
-						<div class="panel-body">
-							<select class="image-picker" name="foto">
-								<c:forEach var="i" begin="1" end="${n}">
-									<option data-img-src="static/img/${i}.jpg" data-img-alt="${i}"
-										value="${i}">${i}</option>
-								</c:forEach>
-							</select> <input type="hidden" name="${_csrf.parameterName}"
+						<input type="hidden" name="${_csrf.parameterName}"
 								value="${_csrf.token}" />
 							<div class="form-group">
 								<div class="col-sm-12 submitButton">
@@ -73,14 +57,6 @@
 			</div>
 		</form>
 	</div>
-
-<script type="text/javascript">
-
-$("select").imagepicker({
-    hide_select : true,
-    show_label  : false
-  })
-  </script>
 
 </body>
 </html>

@@ -79,7 +79,7 @@
 									<div class="media">
 										<div class="media-left" style="padding-right: 25px;">
 											<a href="/user/${m.author.safeName()}"> <img alt="pr1"
-												src="../static/img/${m.author.icon}.jpg"
+												src="../user/photo?id=${m.author.id}"
 												class="img-circle media-object"
 												style="max-height: 100px; margin: auto;" /></a>
 										</div>
@@ -104,9 +104,9 @@
 									<div>
 										<h4 class="media-heading">
 											<a href="/user/${m.destinatario.safeName()}"> <img alt="pr1"
-												src="../static/img/${m.destinatario.icon}.jpg"
+												src="../user/photo?id=${m.destinatario.id}"
 												class="img-responsive img-circle"
-												style="max-height: 150px; margin: auto;" />
+												style="max-height: 125px; margin: auto;" />
 											</a>
 										</h4>
 									</div>

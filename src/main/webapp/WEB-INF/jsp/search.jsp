@@ -22,9 +22,9 @@
 			<div class="col-sm-12 search-result">
 				<c:forEach items="${lista}" var="c">
 					<div class="search-1">
-						<a href="project/${c.safeName()}"><img alt="res1"
+						<a href="project/${c.safeName()}"><img alt="res1" class="img-circle"
 							src="static/img/${c.icon}.jpg"></a>
-						<div class="search-text">
+						<div class="search-text" style="border: none;">
 							<h3>${c.name}</h3>
 							<p>${c.desc}</p>
 						</div>

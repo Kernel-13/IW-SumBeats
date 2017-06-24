@@ -1,8 +1,12 @@
 package es.ucm.fdi.iw.controller;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.List;
@@ -10,10 +14,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,13 +64,13 @@ public class RootController {
 
 	@GetMapping({ "/user/{name}", "/profile/{name}" })
 	public String showUsuario(@PathVariable String name, Model m) {
-		
+
 		try {
 			name = URLDecoder.decode(name, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		
+
 		if (!UserQueries.nameAvailable(entityManager, name)) {
 			User u = UserQueries.findWithName(entityManager, name);
 			List<Proyecto> lista = u.getProjects();
@@ -132,8 +138,7 @@ public class RootController {
 	@RequestMapping(value = "/addUser", method = RequestMethod.POST)
 	@Transactional
 	public String addUser(@RequestParam(required = true) String name, @RequestParam(required = true) String email,
-			@RequestParam(required = true) String pass, @RequestParam(required = true) String desc,
-			@RequestParam(required = true) int foto) {
+			@RequestParam(required = true) String pass, @RequestParam(required = true) String desc) {
 
 		if (!UserQueries.nameAvailable(entityManager, name) || !UserQueries.emailAvailable(entityManager, email)) {
 			return "redirect:/home";
@@ -144,7 +149,6 @@ public class RootController {
 		u.setName(newName);
 		u.setEmail(HtmlUtils.htmlEscape(email.trim()));
 		u.setPassword(passwordEncoder.encode(pass));
-		u.setIcon(foto);
 
 		u.setDescription(Jsoup.parse(desc).text());
 
@@ -169,12 +173,12 @@ public class RootController {
 	@GetMapping("/project/{proyecto}")
 	public String project(@PathVariable String proyecto, Model m, HttpSession s) {
 
-		try {	
+		try {
 			proyecto = URLDecoder.decode(proyecto, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		
+
 		Proyecto p = ProyectoQueries.findWithName(entityManager, proyecto);
 
 		User u = (User) s.getAttribute("user");
@@ -229,7 +233,7 @@ public class RootController {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		
+
 		Proyecto pro = ProyectoQueries.findWithName(entityManager, proyecto);
 		if (pro == null) {
 			return "redirect:/";
@@ -252,7 +256,7 @@ public class RootController {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		
+
 		Proyecto pro = ProyectoQueries.findWithName(entityManager, proyecto);
 
 		if (pro == null) {
@@ -263,7 +267,7 @@ public class RootController {
 		if (pro.getAuthor().getId() != u.getId()) {
 			return "redirect:/";
 		}
-		
+
 		m.addAttribute("n", 20);
 		m.addAttribute("project", pro);
 		return "editProject";
@@ -271,22 +275,18 @@ public class RootController {
 
 	@RequestMapping(value = "/changingProject", method = RequestMethod.POST)
 	@Transactional
-	public String changingProject(@RequestParam(required = true) String desc, 
-			@RequestParam(required = true) int foto,
-			@RequestParam(required = true) long id,
-			HttpSession s) {
+	public String changingProject(@RequestParam(required = true) String desc, @RequestParam(required = true) int foto,
+			@RequestParam(required = true) long id, HttpSession s) {
 
 		User usuario = (User) s.getAttribute("user");
 		usuario = entityManager.find(User.class, usuario.getId());
 
-		
 		Proyecto proy = entityManager.find(Proyecto.class, id);
-		
 
-		if(proy.getAuthor().getId() != usuario.getId()){
+		if (proy.getAuthor().getId() != usuario.getId()) {
 			return "redirect:/";
 		}
-		
+
 		proy.setDesc(Jsoup.parse(desc).text());
 		proy.setIcon(foto);
 
@@ -341,7 +341,7 @@ public class RootController {
 	@Transactional
 	public String addProject(@RequestParam(required = true) String title, @RequestParam(required = true) String desc,
 			@RequestParam(required = true) int foto, HttpSession s) {
-		
+
 		if (!ProyectoQueries.nameAvailable(entityManager, title)) {
 			return "addProject";
 		}
@@ -358,9 +358,8 @@ public class RootController {
 		this.entityManager.persist(proy);
 		logger.info("Proyecto agregado a la BD. Nombre de proyecto: " + title + ". Autor: " + usuario.getName());
 
-
 		usuario.getProjects().add(proy);
-				
+
 		return "redirect:/project/" + proy.safeName();
 	}
 
@@ -545,6 +544,27 @@ public class RootController {
 		return "redirect:/project/" + p.safeName();
 	}
 
+	@GetMapping(value = "/deleteProject/{id}")
+	public String deleteProject(@PathVariable long id, Model m, HttpSession s) {
+
+		Proyecto p = entityManager.find(Proyecto.class, id);
+		if (p == null) {
+			logger.info("No Borrado - No existe el Proyecto");
+			return "redirect:/";
+		}
+
+		User u = (User) s.getAttribute("user");
+		u = entityManager.find(User.class, u.getId());
+
+		if (p.getAuthor().getId() != u.getId()) {
+			logger.info("No Borrado - No eres el propietario del Proyecto");
+			return "redirect:/";
+		}
+
+		m.addAttribute("project", p);
+		return "deleteProject";
+	}
+
 	@RequestMapping(value = "/deleteProject", method = RequestMethod.POST)
 	@Transactional
 	public String deleteProject(@RequestParam long proyecto, HttpSession s) {
@@ -622,12 +642,11 @@ public class RootController {
 
 	@RequestMapping(value = "/customization", method = RequestMethod.POST)
 	@Transactional
-	public String changeInfo(@RequestParam String desc, @RequestParam int foto, HttpSession s) {
+	public String changeInfo(@RequestParam String desc, HttpSession s) {
 
 		User u = (User) s.getAttribute("user");
 		u = entityManager.find(User.class, u.getId());
 		u.setDescription(Jsoup.parse(desc).text());
-		u.setIcon(foto);
 		logger.info("Descripcion Modificada");
 
 		return "redirect:/user/" + u.safeName();
@@ -658,36 +677,6 @@ public class RootController {
 		}
 
 		return "redirect:/project/" + p.safeName();
-	}
-
-	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
-	public @ResponseBody String uploadFileHandler(@RequestParam("file") MultipartFile file) {
-
-		if (!file.isEmpty()) {
-			try {
-				byte[] bytes = file.getBytes();
-
-				// Creating the directory to store file
-				String rootPath = System.getProperty("catalina.home");
-				File dir = new File(rootPath + File.separator + "tmpFiles");
-				if (!dir.exists())
-					dir.mkdirs();
-
-				// Create the file on server
-				File serverFile = new File(dir.getAbsolutePath() + File.separator);
-				BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
-				stream.write(bytes);
-				stream.close();
-
-				logger.info("Server File Location=" + serverFile.getAbsolutePath());
-
-				return "You successfully uploaded file";
-			} catch (Exception e) {
-				return "You failed to upload => " + e.getMessage();
-			}
-		} else {
-			return "You failed to upload because the file was empty.";
-		}
 	}
 
 	// Ejemplo : Reconocimiento de Usuario
@@ -794,7 +783,7 @@ public class RootController {
 		if (receptor == null) {
 			return "redirect:/";
 		}
-		
+
 		Correo nuevo = new Correo();
 		nuevo.setAuthor(emisor);
 		nuevo.setDestinatario(receptor);
@@ -813,32 +802,66 @@ public class RootController {
 
 		return "redirect:/bandeja";
 	}
-	
+
+	@GetMapping("/changePicture")
+	public String changePicture(HttpSession s, Model m) {
+		User u = entityManager.find(User.class, ((User) s.getAttribute("user")).getId());
+
+		m.addAttribute("user", u);
+		return "changePicture";
+	}
+
 	/**
 	 * Uploads a photo for a user
-	 * @param id of user 
-	 * @param photo to upload
+	 * 
+	 * @param id
+	 *            of user
+	 * @param photo
+	 *            to upload
 	 * @return
 	 */
-	@RequestMapping(value="/user", method=RequestMethod.POST)
-    public @ResponseBody String handleFileUpload(@RequestParam("photo") MultipartFile photo,
-    		@RequestParam("id") String id){
-        if (!photo.isEmpty()) {
-            try {
-                byte[] bytes = photo.getBytes();
-                BufferedOutputStream stream =
-                        new BufferedOutputStream(
-                        		new FileOutputStream(ContextInitializer.getFile("user", id)));
-                stream.write(bytes);
-                stream.close();
-                return "You successfully uploaded " + id + 
-                		" into " + ContextInitializer.getFile("user", id).getAbsolutePath() + "!";
-            } catch (Exception e) {
-                return "You failed to upload " + id + " => " + e.getMessage();
-            }
-        } else {
-            return "You failed to upload a photo for " + id + " because the file was empty.";
-        }
-    }
+	@RequestMapping(value = "/changePicture", method = RequestMethod.POST)
+	public String handleFileUpload(@RequestParam("photo") MultipartFile photo,
+			@RequestParam("id") String id, HttpSession s) {
+		if (!photo.isEmpty()) {
+			try {
+				User u = entityManager.find(User.class, ((User) s.getAttribute("user")).getId());
+				byte[] bytes = photo.getBytes();
+				BufferedOutputStream stream = new BufferedOutputStream(
+						new FileOutputStream(ContextInitializer.getFile("user", id)));
+				stream.write(bytes);
+				stream.close();
+				logger.info("You successfully uploaded " + id + " into "
+						+ ContextInitializer.getFile("user", id).getAbsolutePath() + "!");
+				return "redirect:/user/" + u.safeName();
+			} catch (Exception e) {
+				logger.info("You failed to upload " + id + " => " + e.getMessage());
+				return "You failed to upload " + id + " => " + e.getMessage();
+			}
+		} else {
+			logger.info( "You failed to upload a photo for " + id + " because the file was empty.");
+			return "You failed to upload a photo for " + id + " because the file was empty.";
+		}
+	}
 
+	/**
+	 * Returns a users' photo
+	 * 
+	 * @param id
+	 *            id of user to get photo from
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/user/photo", method = RequestMethod.GET, produces = MediaType.IMAGE_JPEG_VALUE)
+	public byte[] userPhoto(@RequestParam("id") String id) throws IOException {
+		File f = ContextInitializer.getFile("user", id);
+		InputStream in = null;
+		if (f.exists()) {
+			in = new BufferedInputStream(new FileInputStream(f));
+		} else {
+			in = new BufferedInputStream(this.getClass().getClassLoader().getResourceAsStream("unknown-user.jpg"));
+		}
+
+		return IOUtils.toByteArray(in);
+	}
 }

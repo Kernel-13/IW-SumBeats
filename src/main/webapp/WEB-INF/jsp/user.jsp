@@ -23,7 +23,7 @@
 			<div class="row">
 				<div class="col-sm-12 user-profile">
 					<div style="text-align: center; margin-bottom: 50px;">
-						<img alt="user_profile_pic" class="img-circle" src="../static/img/${user.icon}.jpg">
+						<img alt="user_profile_pic" style="max-height: 200px" class="img-circle" src="../user/photo?id=${user.id}">
 						<h3>${user.name}</h3>
 						<p>${user.description}</p>
 						<hr width="50%">

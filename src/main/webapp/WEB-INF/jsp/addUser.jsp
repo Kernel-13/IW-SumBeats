@@ -79,22 +79,7 @@
 											maxlength="500"></textarea>
 									</div>
 								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="row form-class" style="width: 942px;">
-					<div class="col-lg-12">
-						<div class="panel panel-info">
-							<div class="panel-heading">Escoge tu Imagen:</div>
-							<div class="panel-body">
-								<select class="image-picker" name="foto">
-									<c:forEach var="i" begin="1" end="${n}">
-										<option data-img-src="static/img/${i}.jpg" data-img-alt="${i}"
-											value="${i}">${i}</option>
-									</c:forEach>
-								</select> <input type="hidden" name="${_csrf.parameterName}"
+								<input type="hidden" name="${_csrf.parameterName}"
 									value="${_csrf.token}" />
 								<div class="form-group">
 									<div class="col-sm-12 submitButton">
@@ -119,13 +104,6 @@
 			</div>
 		</div>
 	</sec:authorize>
-
-	<script type="text/javascript">
-		$("select").imagepicker({
-			hide_select : true,
-			show_label : false
-		})
-	</script>
 
 	<script type="text/javascript">
 		function correctPassword() {

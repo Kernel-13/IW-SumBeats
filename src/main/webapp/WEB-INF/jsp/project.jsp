@@ -44,17 +44,9 @@
 							Opciones <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu">
-							<li><a href="${project.safeName()}/pendingTracks">Tracks
-									Pendientes</a></li>
-							<li><a href="${project.safeName()}/editProject">Modificar Projecto</a></li>
-							<li style="text-align: center;">
-								<form action="/deleteProject" method="post">
-									<input type="hidden" name="proyecto" value="${project.id}" />
-									<input type="hidden" name="${_csrf.parameterName}"
-										value="${_csrf.token}" /> <a href="#" style="color: red"
-										onclick="$(this).closest('form').submit()">Borrar Proyecto</a>
-								</form>
-							</li>
+							<li style="text-align: center;"><a href="${project.safeName()}/pendingTracks">Tracks Pendientes</a></li>
+							<li style="text-align: center;"><a href="${project.safeName()}/editProject">Modificar Projecto</a></li>
+							<li style="text-align: center;"><a style="color:red" href="/deleteProject/${project.id}">Borrar Projecto</a></li>
 						</ul>
 					</div>
 				</c:if>
@@ -111,9 +103,9 @@
 			<div class="col-lx-12 col-md-12 col-sm-12 col-xs-12 collaborators">
 				<c:forEach items="${project.collaborators}" var="c">
 					<div class="col-lx-2 col-md-2 col-sm-2 col-xs-2">
-						<a href="/user/${c.safeName()}"><img alt="pr1" class="img-circle"
-							src="../static/img/${c.icon}.jpg" class="img-responsive"
-							style="max-height: 100px; margin: auto;" /></a>
+						<a href="/user/${c.safeName()}"><img alt="pr1"
+							class="img-circle" src="../user/photo?id=${c.id}"
+							class="img-responsive" style="max-height: 100px; margin: auto;" /></a>
 						<div class="caption">
 							<p>
 								<a href="/user/${c.safeName()}">${c.name}</a>
