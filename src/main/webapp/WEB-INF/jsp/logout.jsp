@@ -14,12 +14,12 @@
 	<div class="container-fluid login">
 		<div class="row form-class">
 			<div class="col-lg-12">
-				<%@ include file="../jspf/authinfo.jspf"%>
+				
 				<div class="panel panel-info">
 					<div class="panel-heading">
 						Fin de Sesión
 					</div>
-					<div class="panel-body">
+					<div class="panel-body" style="color:black">
 						<form class="form-horizontal" action="/login" method="post">
 							Pulsa el botón para cerrar tu sesión actual
 							<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
