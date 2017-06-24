@@ -34,9 +34,9 @@
 				<c:forEach items="${lista}" var="c">
 					<div class="col-sm-3">
 						<div class="project-view">
-							<a href="/project/${c.safeName() }"><img alt="pr1"
-								class="img-circle" src="../static/img/${c.icon}.jpg"></a>
-							<div class="caption">
+							<a href="/project/${c.safeName() }"><img alt="pr1" style="max-height: 200px;"
+								class="img-circle" src="../project/photo?id=${c.id}"></a>
+							<div class="caption" style="margin: 10px;">
 								<p>${c.name}</p>
 							</div>
 						</div>

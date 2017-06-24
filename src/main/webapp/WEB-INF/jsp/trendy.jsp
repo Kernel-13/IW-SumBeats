@@ -20,7 +20,7 @@
 				<c:forEach items="${lista}" var="c">
 					<div class="trendy">
 						<a href="project/${c.safeName()}"><img alt="res1"
-							class="img-circle" src="static/img/${c.icon}.jpg"></a>
+							class="img-circle" src="../project/photo?id=${c.id}"></a>
 						<div class="search-text" style="border: none;">
 							<h3>
 								<a href="project/${c.safeName()}">${c.name}</a>

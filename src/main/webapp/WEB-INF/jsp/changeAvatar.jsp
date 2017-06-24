@@ -20,7 +20,7 @@
 
 	<div class="container-fluid login">
 		<form class="form-horizontal" enctype="multipart/form-data"
-			action="changePicture" method="post">
+			action="changeAvatar" method="post">
 			
 			<div class="row form-class" style="width: 942px;">
 				<div class="col-lg-12">

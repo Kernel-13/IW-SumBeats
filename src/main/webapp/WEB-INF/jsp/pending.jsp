@@ -22,7 +22,7 @@
 	<div class="container illust-container">
 		<div class="row">
 			<div class="col-sm-10 project-info">
-				<img alt="p-img" class="img-circle" src="../../static/img/${project.icon}.jpg">
+				<img alt="p-img" style="max-height: 200px;" class="img-circle" src="../../project/photo?id=${project.id}"">
 				<div class="search-text">
 					<h3>${project.name}</h3>
 					<p>${project.desc}</p>

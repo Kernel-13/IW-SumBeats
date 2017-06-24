@@ -6,6 +6,7 @@
 <html>
 <head>
 <%@ include file="../jspf/head.jspf"%>
+<link rel="stylesheet" type="text/css" href="/static/css/flagged.css">
 <title>Lista de Usuarios</title>
 </head>
 <body>
@@ -19,17 +20,22 @@
 
 			<div class="col-sm-12 illust-box">
 				<table style="width: 100%; text-align: center;">
-					<tr style="font-size: 28px;">
+					<tr style="font-size: 20px;">
+						<td>Avatar</td>
 						<td>Nombre</td>
 						<td>Descripción</td>
+						<td>Nº de Proyectos</td>
+						<td>Nº de Tracks</td>
 					</tr>
 
 					<c:forEach items="${lista}" var="c">
 						<tr>
-							<td><h2>
-									<a href="/user/${c.safeName()}">${c.name}</a>
-								</h2></td>
-							<td><h4>${c.description}</h4></td>
+							<td><img alt="${c.name}" class="img-circle" style="max-height: 100px; max-width: 100px;"
+									src="../user/photo?id=${c.id}"></td>
+							<td><a style="font-size: 20px;" href="/user/${c.safeName()}">${c.name}</a></td>
+							<td style="max-width: 350px;"><p>${c.description}</p></td>
+							<td><h4>${c.projects.size()}</h4></td>
+							<td><h4>${c.tracks.size()}</h4></td>
 						</tr>
 					</c:forEach>
 				</table>

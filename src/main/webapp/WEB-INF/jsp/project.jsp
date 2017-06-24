@@ -21,8 +21,8 @@
 	<div class="container illust-container">
 		<div class="row">
 			<div class="col-lx-10 col-md-10 col-sm-8 col-xs-8 project-info">
-				<img alt="p-img" class="img-circle"
-					src="../static/img/${project.icon}.jpg">
+				<img alt="p-img" class="img-circle" style="max-height: 200px;"
+					src="../project/photo?id=${project.id}">
 				<div class="search-text">
 					<h3>${project.name}
 						by <a href="/user/${project.author.safeName()}">${project.author.getName()}</a>
@@ -46,6 +46,7 @@
 						<ul class="dropdown-menu">
 							<li style="text-align: center;"><a href="${project.safeName()}/pendingTracks">Tracks Pendientes</a></li>
 							<li style="text-align: center;"><a href="${project.safeName()}/editProject">Modificar Projecto</a></li>
+							<li style="text-align: center;"><a href="/changeProjectPicture/${project.id}">Modificar Imagen</a></li>
 							<li style="text-align: center;"><a style="color:red" href="/deleteProject/${project.id}">Borrar Projecto</a></li>
 						</ul>
 					</div>
